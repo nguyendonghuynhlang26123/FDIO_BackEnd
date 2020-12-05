@@ -1,4 +1,4 @@
-import { UserRepository } from "../../models/user.repository";
+import { UserRepository } from "../../models/index";
 import { UserInterface } from "./user.interface";
 import * as bcrypt from "bcrypt";
 
