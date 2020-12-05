@@ -1,10 +1,10 @@
-import { PromotionRepository } from "../../models/index";
+import { PromotionModel } from "../../models";
 import { PromotionInterface } from "./promotion.interface";
 
 export class PromotionService {
   async createPromotion(data: PromotionInterface) {
     try {
-      return await PromotionRepository.add(data);
+      return await PromotionModel.add(data);
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Create Promotion.");
@@ -13,7 +13,7 @@ export class PromotionService {
 
   async findPromotionById(id: string): Promise<PromotionInterface> {
     try {
-      let doc = await PromotionRepository.doc(id).get();
+      let doc = await PromotionModel.doc(id).get();
       if (!doc.exists) {
         throw new Error("Not Found Promotion.");
       }
@@ -30,7 +30,7 @@ export class PromotionService {
 
   async findAllPromotion(): Promise<PromotionInterface[]> {
     try {
-      let collection = await PromotionRepository.get();
+      let collection = await PromotionModel.get();
       if (collection.empty) {
         throw new Error("No documents..");
       }
@@ -53,7 +53,7 @@ export class PromotionService {
     try {
       delete dataUpdate._id;
       delete dataUpdate.created_at;
-      const result = await PromotionRepository.doc(id).update(dataUpdate);
+      const result = await PromotionModel.doc(id).update(dataUpdate);
       return result;
     } catch (e) {
       console.log(e);
@@ -63,7 +63,7 @@ export class PromotionService {
 
   async deletePromotion(id: string) {
     try {
-      const result = await PromotionRepository.doc(id).delete();
+      const result = await PromotionModel.doc(id).delete();
       return result;
     } catch (e) {
       console.log(e);

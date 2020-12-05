@@ -1,10 +1,10 @@
-import { OrderRepository } from "../../models/index";
+import { OrderModel } from "../../models";
 import { OrderInterface } from "./order.interface";
 
 export class OrderService {
   async createOrder(data: OrderInterface) {
     try {
-      return await OrderRepository.add(data);
+      return await OrderModel.add(data);
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Create Order.");
@@ -13,7 +13,7 @@ export class OrderService {
 
   async findOrderById(id: string): Promise<OrderInterface> {
     try {
-      let doc = await OrderRepository.doc(id).get();
+      let doc = await OrderModel.doc(id).get();
       if (!doc.exists) {
         throw new Error("Not Found Order.");
       }
@@ -30,7 +30,7 @@ export class OrderService {
 
   async findAllOrder(): Promise<OrderInterface[]> {
     try {
-      let collection = await OrderRepository.get();
+      let collection = await OrderModel.get();
       if (collection.empty) {
         throw new Error("No documents..");
       }
@@ -53,7 +53,7 @@ export class OrderService {
     try {
       delete dataUpdate._id;
       delete dataUpdate.created_at;
-      const result = await OrderRepository.doc(id).update(dataUpdate);
+      const result = await OrderModel.doc(id).update(dataUpdate);
       return result;
     } catch (e) {
       console.log(e);
@@ -63,7 +63,7 @@ export class OrderService {
 
   async deleteOrder(id: string) {
     try {
-      const result = await OrderRepository.doc(id).delete();
+      const result = await OrderModel.doc(id).delete();
       return result;
     } catch (e) {
       console.log(e);

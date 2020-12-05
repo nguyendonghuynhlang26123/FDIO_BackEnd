@@ -1,4 +1,4 @@
-import { UserRepository } from "../../models/index";
+import { UserModel } from "../../models";
 import { UserInterface } from "./user.interface";
 import * as bcrypt from "bcrypt";
 
@@ -16,7 +16,7 @@ export class UserService {
       data.created_at = Date.now();
       delete data._id;
       data.password = await this.hashPassword(data.password);
-      return await UserRepository.add(data);
+      return await UserModel.add(data);
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Create User.");
@@ -25,7 +25,7 @@ export class UserService {
 
   async findUserById(id: string): Promise<UserInterface> {
     try {
-      let doc = await UserRepository.doc(id).get();
+      let doc = await UserModel.doc(id).get();
       if (!doc.exists) {
         throw new Error("Not Found User.");
       }
@@ -44,7 +44,7 @@ export class UserService {
 
   async findAllUser(): Promise<UserInterface[]> {
     try {
-      let collection = await UserRepository.get();
+      let collection = await UserModel.get();
       if (collection.empty) {
         throw new Error("No documents..");
       }
@@ -71,7 +71,7 @@ export class UserService {
       delete dataUpdate.username;
       delete dataUpdate.password;
       delete dataUpdate.created_at;
-      const result = await UserRepository.doc(id).update(dataUpdate);
+      const result = await UserModel.doc(id).update(dataUpdate);
       return result;
     } catch (e) {
       console.log(e);
@@ -82,7 +82,7 @@ export class UserService {
   async changePasswordUser(id: string, newPassword: string) {
     try {
       newPassword = await this.hashPassword(newPassword);
-      const result = await UserRepository.doc(id).update({
+      const result = await UserModel.doc(id).update({
         password: newPassword,
       });
       return result;
@@ -94,7 +94,7 @@ export class UserService {
 
   async deleteUser(id: string) {
     try {
-      const result = await UserRepository.doc(id).delete();
+      const result = await UserModel.doc(id).delete();
       return result;
     } catch (e) {
       console.log(e);

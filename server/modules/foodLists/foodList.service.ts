@@ -1,10 +1,10 @@
-import { FoodListRepository } from "../../models/index";
+import { FoodListModel } from "../../models";
 import { FoodListInterface } from "./foodList.interface";
 
 export class FoodListService {
   async createFoodList(data: FoodListInterface) {
     try {
-      return await FoodListRepository.add(data);
+      return await FoodListModel.add(data);
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Create Food List.");
@@ -13,7 +13,7 @@ export class FoodListService {
 
   async findFoodListById(id: string): Promise<FoodListInterface> {
     try {
-      let doc = await FoodListRepository.doc(id).get();
+      let doc = await FoodListModel.doc(id).get();
       if (!doc.exists) {
         throw new Error("Not Found Food List.");
       }
@@ -30,7 +30,7 @@ export class FoodListService {
 
   async findAllFoodList(): Promise<FoodListInterface[]> {
     try {
-      let collection = await FoodListRepository.get();
+      let collection = await FoodListModel.get();
       if (collection.empty) {
         throw new Error("No documents..");
       }
@@ -53,7 +53,7 @@ export class FoodListService {
     try {
       delete dataUpdate._id;
       delete dataUpdate.created_at;
-      const result = await FoodListRepository.doc(id).update(dataUpdate);
+      const result = await FoodListModel.doc(id).update(dataUpdate);
       return result;
     } catch (e) {
       console.log(e);
@@ -63,7 +63,7 @@ export class FoodListService {
 
   async deleteFoodList(id: string) {
     try {
-      const result = await FoodListRepository.doc(id).delete();
+      const result = await FoodListModel.doc(id).delete();
       return result;
     } catch (e) {
       console.log(e);
