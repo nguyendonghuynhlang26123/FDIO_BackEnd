@@ -2,10 +2,10 @@
   "name": "intro_se_team3_backend",
   "version": "1.0.0",
   "description": "",
-  "main": "app.ts",
+  "main": "main.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon server/app.ts"
+    "start": "nodemon server/main.ts"
   },
   "repository": {
     "type": "git",
