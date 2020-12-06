@@ -23,15 +23,13 @@ async function initServer() {
   app.set('views', './views');
 
   app.get('/', (req, res) => {
-  console.log("log ~ file: main.ts ~ line 27 ~ initServer ~ __dirname", __dirname)
-  console.log("log ~ file: main.ts ~ line 27 ~ initServer ~ __dirname", __dirname)
-  console.log("log ~ file: main.ts ~ line 27 ~ initServer ~ __dirname", __dirname)
-  console.log("log ~ file: main.ts ~ line 27 ~ initServer ~ __dirname", __dirname)
-  console.log("log ~ file: main.ts ~ line 27 ~ initServer ~ __dirname", __dirname)
-  console.log("log ~ file: main.ts ~ line 27 ~ initServer ~ __dirname", __dirname)
-  console.log("log ~ file: main.ts ~ line 27 ~ initServer ~ __dirname", __dirname)
-  console.log("log ~ file: main.ts ~ line 27 ~ initServer ~ __dirname", __dirname)
     res.render('pages/loginPage', {});
+  });
+
+  app.get('/demo', (req, res) => {
+    res.send({
+      text: `Server received data at ${new Date(Date.now()).toLocaleString()}`,
+    });
   });
 
   app.listen(port, () => {
