@@ -33,6 +33,12 @@ async function initServer() {
     res.render("pages/loginPage", {});
   });
 
+  app.get('/demo', (req, res) => {
+    res.send({
+      text: `Server received data at ${new Date(Date.now()).toLocaleString()}`,
+    });
+  });
+
   app.listen(port, () => {
     console.log(`Server is listening at http://localhost:${port}`);
   });
