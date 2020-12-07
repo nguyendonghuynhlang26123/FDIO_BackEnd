@@ -4,6 +4,11 @@ import { FoodListInterface } from "./foodList.interface";
 export class FoodListService {
   async createFoodList(data: FoodListInterface) {
     try {
+      if (!data.thumbnail) {
+        throw new Error("Cannot Create Food List. Has Null Field.");
+      }
+      data.created_at = Date.now();
+      delete data._id;
       return await FoodListModel.add(data);
     } catch (e) {
       console.log(e);
@@ -19,6 +24,8 @@ export class FoodListService {
       }
       const foodList: FoodListInterface = {
         _id: doc.id,
+        list: doc.data().list,
+        thumbnail: doc.data().thumbnail,
         created_at: doc.data().created_at,
       };
       return foodList;
@@ -38,6 +45,8 @@ export class FoodListService {
       collection.forEach((doc) => {
         const foodList: FoodListInterface = {
           _id: doc.id,
+          list: doc.data().list,
+          thumbnail: doc.data().thumbnail,
           created_at: doc.data().created_at,
         };
         foodLists.push(foodList);

@@ -4,6 +4,17 @@ import { PromotionInterface } from "./promotion.interface";
 export class PromotionService {
   async createPromotion(data: PromotionInterface) {
     try {
+      if (
+        !data.name ||
+        !data.start_date ||
+        !data.closing_date ||
+        !data.thumbnail ||
+        !data.discount
+      ) {
+        throw new Error("Cannot Create Promotion. Has Null Field.");
+      }
+      data.created_at = Date.now();
+      delete data._id;
       return await PromotionModel.add(data);
     } catch (e) {
       console.log(e);
@@ -19,6 +30,11 @@ export class PromotionService {
       }
       const promotion: PromotionInterface = {
         _id: doc.id,
+        name: doc.data().name,
+        start_date: doc.data().start_date,
+        closing_date: doc.data().closing_date,
+        thumbnail: doc.data().stthumbnailring,
+        discount: doc.data().discount,
         created_at: doc.data().created_at,
       };
       return promotion;
@@ -38,6 +54,11 @@ export class PromotionService {
       collection.forEach((doc) => {
         const promotion: PromotionInterface = {
           _id: doc.id,
+          name: doc.data().name,
+          start_date: doc.data().start_date,
+          closing_date: doc.data().closing_date,
+          thumbnail: doc.data().stthumbnailring,
+          discount: doc.data().discount,
           created_at: doc.data().created_at,
         };
         promotions.push(promotion);
