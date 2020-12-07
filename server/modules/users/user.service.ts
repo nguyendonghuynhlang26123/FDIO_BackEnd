@@ -14,6 +14,7 @@ export class UserService {
         throw new Error("Cannot Create User.");
       }
       data.created_at = Date.now();
+      data.role = "manager";
       delete data._id;
       data.password = await this.hashPassword(data.password);
       return await UserModel.add(data);
@@ -33,6 +34,7 @@ export class UserService {
         _id: doc.id,
         username: doc.data().username,
         password: null,
+        role: doc.data().role,
         created_at: doc.data().created_at,
       };
       return user;
@@ -54,6 +56,7 @@ export class UserService {
           _id: doc.id,
           username: doc.data().username,
           password: null,
+          role: doc.data().role,
           created_at: doc.data().created_at,
         };
         users.push(user);
@@ -71,6 +74,7 @@ export class UserService {
       delete dataUpdate.username;
       delete dataUpdate.password;
       delete dataUpdate.created_at;
+      delete dataUpdate.role;
       const result = await UserModel.doc(id).update(dataUpdate);
       return result;
     } catch (e) {

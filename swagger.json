@@ -1,0 +1,816 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Food Dine-in Ordering System",
+    "version": "0.1.0",
+    "description": "Food Dine-in Ordering System - Swagger",
+    "license": {
+      "name": "MIT",
+      "url": "https://spdx.org/licenses/MIT.html"
+    },
+    "contact": {
+      "name": "Food Dine-in Ordering System",
+      "email": "fdio@email.com"
+    }
+  },
+  "schemes": ["http", "https"],
+  "paths": {
+    "/user": {
+      "post": {
+        "tags": ["user"],
+        "summary": "Create a new user",
+        "description": "create a new user",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "User object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Invalid Input"
+          }
+        }
+      },
+      "get": {
+        "tags": ["user"],
+        "summary": "Find all user",
+        "description": "Return all user",
+        "produces": ["application/json", "application/xml"],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/User"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status Value"
+          }
+        }
+      }
+    },
+    "/user/{userId}": {
+      "get": {
+        "tags": ["user"],
+        "summary": "Find user by ID",
+        "description": "Return a user",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "User Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["user"],
+        "summary": "Update an existing user",
+        "description": "Update an existing user",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "User object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "User Not Found"
+          },
+          "405": {
+            "description": "Validation Exception"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["user"],
+        "summary": "Delete user by ID",
+        "description": "Delete a user",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "User Not Found"
+          }
+        }
+      }
+    },
+    "/user/change-password/{userId}": {
+      "put": {
+        "tags": ["user"],
+        "summary": "Change password an existing user",
+        "description": "Update password an existing user",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "description": "ID of user to change password",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "New password",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "newPassword": { "type": "string", "example": "fdio-web" }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "User Not Found"
+          },
+          "405": {
+            "description": "Validation Exception"
+          }
+        }
+      }
+    },
+
+    "/promotion": {
+      "post": {
+        "tags": ["promotion"],
+        "summary": "Create a new promotion",
+        "description": "create a new promotion",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Promotion object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Promotion"
+            }
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Invalid Input"
+          }
+        }
+      },
+      "get": {
+        "tags": ["promotion"],
+        "summary": "Find all promotion",
+        "description": "Return all promotion",
+        "produces": ["application/json", "application/xml"],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Promotion"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status Value"
+          }
+        }
+      }
+    },
+    "/promotion/{promotionId}": {
+      "get": {
+        "tags": ["promotion"],
+        "summary": "Find promotion by ID",
+        "description": "Return a promotion",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "description": "ID of promotion to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "$ref": "#/definitions/Promotion"
+            }
+          },
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Promotion Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["promotion"],
+        "summary": "Update an existing promotion",
+        "description": "Update an existing promotion",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "description": "ID of promotion to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Promotion object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Promotion"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Promotion Not Found"
+          },
+          "405": {
+            "description": "Validation Exception"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["promotion"],
+        "summary": "Delete promotion by ID",
+        "description": "Delete a promotion",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "promotionId",
+            "in": "path",
+            "description": "ID of promotion to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Promotion Not Found"
+          }
+        }
+      }
+    },
+
+    "/order": {
+      "post": {
+        "tags": ["order"],
+        "summary": "Create a new order",
+        "description": "create a new order",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Order object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Invalid Input"
+          }
+        }
+      },
+      "get": {
+        "tags": ["order"],
+        "summary": "Find all order",
+        "description": "Return all order",
+        "produces": ["application/json", "application/xml"],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Order"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status Value"
+          }
+        }
+      }
+    },
+    "/order/{orderId}": {
+      "get": {
+        "tags": ["order"],
+        "summary": "Find order by ID",
+        "description": "Return a order",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "ID of order to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          },
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Order Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["order"],
+        "summary": "Update an existing order",
+        "description": "Update an existing order",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "ID of order to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Order object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Order"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Order Not Found"
+          },
+          "405": {
+            "description": "Validation Exception"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["order"],
+        "summary": "Delete order by ID",
+        "description": "Delete a order",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "orderId",
+            "in": "path",
+            "description": "ID of order to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Order Not Found"
+          }
+        }
+      }
+    },
+
+    "/food": {
+      "post": {
+        "tags": ["food"],
+        "summary": "Create a new food",
+        "description": "create a new food",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Food object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Food"
+            }
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Invalid Input"
+          }
+        }
+      },
+      "get": {
+        "tags": ["food"],
+        "summary": "Find all food",
+        "description": "Return all food",
+        "produces": ["application/json", "application/xml"],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Food"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status Value"
+          }
+        }
+      }
+    },
+    "/food/{foodId}": {
+      "get": {
+        "tags": ["food"],
+        "summary": "Find food by ID",
+        "description": "Return a food",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "foodId",
+            "in": "path",
+            "description": "ID of food to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "$ref": "#/definitions/Food"
+            }
+          },
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Food Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["food"],
+        "summary": "Update an existing food",
+        "description": "Update an existing food",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "foodId",
+            "in": "path",
+            "description": "ID of food to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Food object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Food"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Food Not Found"
+          },
+          "405": {
+            "description": "Validation Exception"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["food"],
+        "summary": "Delete food by ID",
+        "description": "Delete a food",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "foodId",
+            "in": "path",
+            "description": "ID of food to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Food Not Found"
+          }
+        }
+      }
+    },
+
+    "/food-list": {
+      "post": {
+        "tags": ["food list"],
+        "summary": "Create a new food list",
+        "description": "create a new food list",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Food List object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FoodList"
+            }
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Invalid Input"
+          }
+        }
+      },
+      "get": {
+        "tags": ["food list"],
+        "summary": "Find all food list",
+        "description": "Return all food list",
+        "produces": ["application/json", "application/xml"],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/FoodList"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status Value"
+          }
+        }
+      }
+    },
+    "/food-list/{foodListId}": {
+      "get": {
+        "tags": ["food list"],
+        "summary": "Find food list by ID",
+        "description": "Return a food list",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "foodListId",
+            "in": "path",
+            "description": "ID of food list to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "$ref": "#/definitions/FoodList"
+            }
+          },
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Food List Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["food list"],
+        "summary": "Update an existing food list",
+        "description": "Update an existing food list",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "foodListId",
+            "in": "path",
+            "description": "ID of food list to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Food List object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/FoodList"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Food List Not Found"
+          },
+          "405": {
+            "description": "Validation Exception"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["food list"],
+        "summary": "Delete food list by ID",
+        "description": "Delete a food list",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "foodListId",
+            "in": "path",
+            "description": "ID of food list to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Food List Not Found"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "username": { "type": "string", "example": "fdio-web" },
+        "password": { "type": "string", "example": "fdio-web" },
+        "role": {
+          "type": "string",
+          "enum": ["manager", "admin"]
+        }
+      }
+    },
+    "Promotion": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "example": "promotion" },
+        "start_date": { "type": "number", "example": 1607364449411 },
+        "closing_date": { "type": "number", "example": 1807964449421 },
+        "thumbnail": { "type": "string", "example": "meomeomeo.png" },
+        "discount": { "type": "number", "example": 1807964449421 }
+      }
+    },
+    "Order": {
+      "type": "object",
+      "properties": {
+        "table_id": { "type": "number", "example": 2 },
+        "time_order": { "type": "number", "example": 1607364449411 },
+        "manager": { "type": "string", "example": "n8RMDJ6m7EmAv9BNrCeb" },
+        "list_order_item": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "food": { "type": "string", "example": "GvpCcQA5uKOCfoYyrdr8" },
+              "quantity": { "type": "number", "example": 5 }
+            }
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "waiting for acceptance",
+            "accepted",
+            "unaccepted",
+            "prepared",
+            "unprepared",
+            "served"
+          ]
+        },
+        "discount": { "type": "string", "example": "YM8WJe6Wu8Ya8w8GdsYu" },
+        "note": { "type": "string", "example": "note" }
+      }
+    },
+    "Food": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "example": "food" },
+        "thumbnail": { "type": "string", "example": "meomeomeo.png" },
+        "description": { "type": "number", "example": "description" },
+        "type": { "type": "string", "example": "main course" },
+        "price": { "type": "number", "example": 230000 }
+      }
+    },
+    "FoodList": {
+      "type": "object",
+      "properties": {
+        "list": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "example": ["i0w2SLjd46LpCZI66f8v", "GvpCcQA5uKOCfoYyrdr8"]
+        },
+        "thumbnail": { "type": "string", "example": "meomeomeo.png" }
+      }
+    }
+  }
+}
