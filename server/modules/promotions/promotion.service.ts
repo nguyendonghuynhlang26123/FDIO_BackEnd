@@ -1,5 +1,5 @@
 import { PromotionModel } from "../../models";
-import { PromotionInterface } from "./promotion.interface";
+import { PromotionInterface } from "../../interfaces";
 
 export class PromotionService {
   async createPromotion(data: PromotionInterface) {
@@ -26,7 +26,7 @@ export class PromotionService {
     try {
       let doc = await PromotionModel.doc(id).get();
       if (!doc.exists) {
-        throw new Error("Not Found Promotion.");
+        return null;
       }
       const promotion: PromotionInterface = {
         _id: doc.id,
@@ -48,7 +48,7 @@ export class PromotionService {
     try {
       let collection = await PromotionModel.get();
       if (collection.empty) {
-        throw new Error("No documents..");
+        return [];
       }
       const promotions: PromotionInterface[] = [];
       collection.forEach((doc) => {
@@ -75,7 +75,7 @@ export class PromotionService {
       delete dataUpdate._id;
       delete dataUpdate.created_at;
       const result = await PromotionModel.doc(id).update(dataUpdate);
-      return result;
+      return { _id: id, result: result };
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Update Promotion.");
@@ -85,7 +85,7 @@ export class PromotionService {
   async deletePromotion(id: string) {
     try {
       const result = await PromotionModel.doc(id).delete();
-      return result;
+      return { _id: id, result: result };
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Delete Promotion.");

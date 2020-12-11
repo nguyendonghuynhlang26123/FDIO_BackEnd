@@ -1,5 +1,5 @@
 import { UserModel } from "../../models";
-import { UserInterface } from "./user.interface";
+import { UserInterface } from "../../interfaces";
 import * as bcrypt from "bcrypt";
 
 export class UserService {
@@ -28,7 +28,7 @@ export class UserService {
     try {
       let doc = await UserModel.doc(id).get();
       if (!doc.exists) {
-        throw new Error("Not Found User.");
+        return null;
       }
       const user: UserInterface = {
         _id: doc.id,
@@ -48,7 +48,7 @@ export class UserService {
     try {
       let collection = await UserModel.get();
       if (collection.empty) {
-        throw new Error("No documents..");
+        return [];
       }
       const users: UserInterface[] = [];
       collection.forEach((doc) => {
@@ -76,7 +76,7 @@ export class UserService {
       delete dataUpdate.created_at;
       delete dataUpdate.role;
       const result = await UserModel.doc(id).update(dataUpdate);
-      return result;
+      return { _id: id, result: result };
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Update User.");
@@ -89,7 +89,7 @@ export class UserService {
       const result = await UserModel.doc(id).update({
         password: newPassword,
       });
-      return result;
+      return { _id: id, result: result };
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Update User.");
@@ -99,10 +99,32 @@ export class UserService {
   async deleteUser(id: string) {
     try {
       const result = await UserModel.doc(id).delete();
-      return result;
+      return { _id: id, result: result };
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Delete User.");
+    }
+  }
+
+  async findUserByUsername(username: string): Promise<UserInterface> {
+    try {
+      let doc = await UserModel.where("username", "==", username)
+        .limit(1)
+        .get();
+      if (!doc.empty) {
+        throw new Error("Not Found User.");
+      }
+      const user: UserInterface = {
+        _id: doc[0].id,
+        username: doc[0].data().username,
+        password: doc[0].data().password,
+        role: doc[0].data().role,
+        created_at: doc[0].data().created_at,
+      };
+      return user;
+    } catch (e) {
+      console.log(e);
+      throw new Error("Cannot Find User.");
     }
   }
 }

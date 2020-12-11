@@ -7,9 +7,9 @@ export class OrderInterface {
     {
       food: string; // Food id
       quantity: number;
+      status: "processing" | "deny" | "completed";
     }
   ];
-  status: "waiting for acceptance" | "accepted" | "unaccepted" | "prepared" | "unprepared" | "served";
   discount: string; // Promotion id
   note: string;
   created_at: number;

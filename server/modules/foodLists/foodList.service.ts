@@ -1,5 +1,5 @@
 import { FoodListModel } from "../../models";
-import { FoodListInterface } from "./foodList.interface";
+import { FoodListInterface } from "../../interfaces";
 
 export class FoodListService {
   async createFoodList(data: FoodListInterface) {
@@ -20,7 +20,7 @@ export class FoodListService {
     try {
       let doc = await FoodListModel.doc(id).get();
       if (!doc.exists) {
-        throw new Error("Not Found Food List.");
+        return null;
       }
       const foodList: FoodListInterface = {
         _id: doc.id,
@@ -39,7 +39,7 @@ export class FoodListService {
     try {
       let collection = await FoodListModel.get();
       if (collection.empty) {
-        throw new Error("No documents..");
+        return [];
       }
       const foodLists: FoodListInterface[] = [];
       collection.forEach((doc) => {
@@ -63,7 +63,7 @@ export class FoodListService {
       delete dataUpdate._id;
       delete dataUpdate.created_at;
       const result = await FoodListModel.doc(id).update(dataUpdate);
-      return result;
+      return { _id: id, result: result };
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Update Food List.");
@@ -73,7 +73,7 @@ export class FoodListService {
   async deleteFoodList(id: string) {
     try {
       const result = await FoodListModel.doc(id).delete();
-      return result;
+      return { _id: id, result: result };
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Delete Food List.");
