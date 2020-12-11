@@ -1,0 +1,292 @@
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;700&display=swap');
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  background: linear-gradient(to bottom right, #2193b0, #6dd5ed);
+  font-family: 'Work Sans', sans-serif;
+}
+p {
+  margin: 0;
+  padding: 0;
+}
+
+h1 {
+  font-weight: 800;
+  color: white;
+  opacity: 0.4;
+  font-size: 4rem;
+  text-align: center;
+}
+
+#container {
+  display: flex;
+  border: 2px solid white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.order-container {
+  margin: auto 40px;
+  color: white;
+}
+
+.list-title {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  margin-top: 20px;
+  font-weight: 800;
+}
+
+.order-container ul {
+  margin: 20px 0;
+  width: 250px;
+}
+
+.order-items {
+  list-style-position: inside;
+  list-style: circle;
+  margin: 10px 0;
+  padding: 10px 10px;
+  font-size: 1.1em;
+  border-bottom: 1px solid white;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  background-color: rgba(255, 255, 255, 0);
+}
+.order-items:hover {
+  opacity: 0.7;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.order-items div {
+  display: flex;
+  align-items: center;
+}
+
+.order-items div p {
+  font-size: 0.8em;
+}
+
+.order-items svg {
+  width: 0.8em;
+  height: 0.8em;
+  margin-right: 0.5rem;
+  fill: white;
+}
+
+.selected {
+  font-weight: 800;
+}
+
+.btn {
+  background-color: transparent;
+  border: 0;
+  color: inherit;
+  margin: 0;
+  margin-right: 5px;
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.task-container {
+  --padding: 25px;
+  background-color: white;
+  width: 400px;
+  margin: 10px;
+  color: #333;
+  box-shadow: 5px 10px 18px black;
+}
+
+.header {
+  background-color: rgb(223, 223, 223);
+  padding: var(--padding);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+}
+
+.task-remaining {
+  font-size: 0.8rem;
+}
+
+.task-body {
+  margin: var(--padding);
+}
+
+[type='checkbox'] {
+  opacity: 0;
+  position: absolute;
+}
+
+.custom-checkbox {
+  --size: 0.75em;
+  display: inline-block;
+  width: var(--size);
+  height: var(--size);
+  border: 1.5px solid;
+  border-color: inherit;
+  border-radius: 50%;
+  cursor: pointer;
+  margin-right: var(--size);
+}
+
+.tasks label {
+  font-size: 1.2rem;
+  line-height: 1.8rem;
+  font-weight: 300;
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  margin-bottom: 0;
+
+  cursor: pointer;
+}
+
+.tasks label::after {
+  content: '';
+  position: absolute;
+  left: 1.6rem;
+  right: -0.6rem;
+  height: 2px;
+  background-color: #333;
+  transform: scaleX(0);
+  transition: transform 150ms ease-in-out;
+  transform-origin: right;
+}
+
+.tasks {
+  position: relative;
+}
+
+.tasks > div {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 1.25rem;
+}
+
+.tasks > div:after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.5rem;
+  opacity: 0.2;
+  height: 2px;
+  background-color: #333;
+  transform: scale(1);
+  transition: transform 350ms ease-in-out;
+}
+
+.task-name svg {
+  width: 2.3rem;
+  height: 2.3rem;
+  display: none;
+}
+
+.progressing svg {
+  display: block;
+}
+
+[type='checkbox']:checked + label {
+  opacity: 0.5;
+}
+
+[type='checkbox']:checked + label:after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.btns-container {
+  margin-top: 30px;
+  margin-bottom: 20px;
+  font-size: 0.8rem;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  padding: 5px;
+}
+
+.btns-container div {
+  cursor: pointer;
+  transition: 150ms ease-in;
+}
+
+.btns-container div:hover {
+  opacity: 0.6;
+  text-decoration: underline;
+}
+
+.btn-task {
+  font-size: 1.5rem;
+  margin-right: 10px;
+}
+
+.note p {
+  padding: 1rem 1.5rem;
+  padding-top: 0;
+}
+
+.action-btn {
+  padding: 0.3rem 0.2rem;
+}
+
+@media screen and (max-width: 800px) {
+  html {
+    height: 120%;
+  }
+  #container {
+    flex-direction: column;
+    margin-top: 80px;
+    border-radius: 10px;
+  }
+  .order-title {
+    text-align: center;
+  }
+  .input-zone .create {
+    width: 100%;
+    height: 40px;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  html {
+    width: 100%;
+  }
+  #container {
+    width: 90%;
+    margin-top: 50px;
+  }
+  .task-container {
+    width: 90%;
+    margin: auto;
+    margin-bottom: 20px;
+  }
+  .order-container {
+    margin: 10px auto;
+  }
+  .header {
+    display: block;
+    text-align: center;
+    line-height: 1.2rem;
+  }
+}
