@@ -1,5 +1,5 @@
 import { FoodModel } from "../../models";
-import { FoodInterface } from "./food.interface";
+import { FoodInterface } from "../../interfaces";
 
 export class FoodService {
   async createFood(data: FoodInterface) {
@@ -26,7 +26,7 @@ export class FoodService {
     try {
       let doc = await FoodModel.doc(id).get();
       if (!doc.exists) {
-        throw new Error("Not Found Food .");
+        return null;
       }
       const food: FoodInterface = {
         _id: doc.id,
@@ -48,7 +48,7 @@ export class FoodService {
     try {
       let collection = await FoodModel.get();
       if (collection.empty) {
-        throw new Error("No documents..");
+        return [];
       }
       const foods: FoodInterface[] = [];
       collection.forEach((doc) => {
@@ -75,7 +75,7 @@ export class FoodService {
       delete dataUpdate._id;
       delete dataUpdate.created_at;
       const result = await FoodModel.doc(id).update(dataUpdate);
-      return result;
+      return { _id: id, result: result };
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Update Food.");
@@ -85,7 +85,7 @@ export class FoodService {
   async deleteFood(id: string) {
     try {
       const result = await FoodModel.doc(id).delete();
-      return result;
+      return { _id: id, result: result };
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Delete Food.");

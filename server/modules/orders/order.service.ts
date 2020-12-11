@@ -1,5 +1,5 @@
 import { OrderModel } from "../../models";
-import { OrderInterface } from "./order.interface";
+import { OrderInterface } from "../../interfaces";
 
 export class OrderService {
   async createOrder(data: OrderInterface) {
@@ -8,8 +8,6 @@ export class OrderService {
         throw new Error("Cannot Create Order. Has Null Field.");
       }
       data.created_at = Date.now();
-      data.time_order = Date.now();
-      data.status = "waiting for acceptance";
       delete data._id;
       return await OrderModel.add(data);
     } catch (e) {
@@ -22,7 +20,7 @@ export class OrderService {
     try {
       let doc = await OrderModel.doc(id).get();
       if (!doc.exists) {
-        throw new Error("Not Found Order.");
+        return null;
       }
       const order: OrderInterface = {
         _id: doc.id,
@@ -30,7 +28,6 @@ export class OrderService {
         time_order: doc.data().time_order,
         manager: doc.data().manager,
         list_order_item: doc.data().list_order_item,
-        status: doc.data().status,
         discount: doc.data().discount,
         note: doc.data().note,
         created_at: doc.data().created_at,
@@ -46,7 +43,7 @@ export class OrderService {
     try {
       let collection = await OrderModel.get();
       if (collection.empty) {
-        throw new Error("No documents..");
+        return [];
       }
       const orders: OrderInterface[] = [];
       collection.forEach((doc) => {
@@ -56,7 +53,6 @@ export class OrderService {
           time_order: doc.data().time_order,
           manager: doc.data().manager,
           list_order_item: doc.data().list_order_item,
-          status: doc.data().status,
           discount: doc.data().discount,
           note: doc.data().note,
           created_at: doc.data().created_at,
@@ -75,7 +71,7 @@ export class OrderService {
       delete dataUpdate._id;
       delete dataUpdate.created_at;
       const result = await OrderModel.doc(id).update(dataUpdate);
-      return result;
+      return { _id: id, result: result };
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Update Order.");
@@ -85,7 +81,7 @@ export class OrderService {
   async deleteOrder(id: string) {
     try {
       const result = await OrderModel.doc(id).delete();
-      return result;
+      return { _id: id, result: result };
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Delete Order.");

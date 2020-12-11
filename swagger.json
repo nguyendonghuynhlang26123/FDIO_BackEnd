@@ -150,7 +150,7 @@
         }
       }
     },
-    "/user/change-password/{userId}": {
+    "/user/change-password": {
       "put": {
         "tags": ["user"],
         "summary": "Change password an existing user",
@@ -158,13 +158,6 @@
         "consumes": ["application/json", "application/xml"],
         "produces": ["application/json", "application/xml"],
         "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "description": "ID of user to change password",
-            "required": true,
-            "type": "string"
-          },
           {
             "in": "body",
             "name": "body",
@@ -464,6 +457,215 @@
       }
     },
 
+    "/order-queue": {
+      "post": {
+        "tags": ["order queue"],
+        "summary": "Create a new order queue",
+        "description": "create a new order queue",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Order queue object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrderQueue"
+            }
+          }
+        ],
+        "responses": {
+          "405": {
+            "description": "Invalid Input"
+          }
+        }
+      },
+      "get": {
+        "tags": ["order queue"],
+        "summary": "Find all order queue",
+        "description": "Return all order queue",
+        "produces": ["application/json", "application/xml"],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/OrderQueue"
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid Status Value"
+          }
+        }
+      }
+    },
+    "/order-queue/{orderQueueId}": {
+      "get": {
+        "tags": ["order queue"],
+        "summary": "Find order queue by ID",
+        "description": "Return a order queue",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "orderQueueId",
+            "in": "path",
+            "description": "ID of order queue to return",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Operation",
+            "schema": {
+              "$ref": "#/definitions/OrderQueue"
+            }
+          },
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Order Queue Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["order queue"],
+        "summary": "Update an existing order queue",
+        "description": "Update an existing order queue",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "orderQueueId",
+            "in": "path",
+            "description": "ID of order queue to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Order queue object",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/OrderQueue"
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Order Queue Not Found"
+          },
+          "405": {
+            "description": "Validation Exception"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["order queue"],
+        "summary": "Delete order queue by ID",
+        "description": "Delete a order queue",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "orderQueueId",
+            "in": "path",
+            "description": "ID of order queue to delete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Order Queue Not Found"
+          }
+        }
+      }
+    },
+    "/order-queue/complete/{orderQueueId}": {
+      "delete": {
+        "tags": ["order queue"],
+        "summary": "Complete order queue by ID",
+        "description": "Complete a order queue",
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "orderQueueId",
+            "in": "path",
+            "description": "ID of order queue to complete",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Order Queue Not Found"
+          }
+        }
+      }
+    },
+    "/order-queue/update-status/{orderQueueId}": {
+      "put": {
+        "tags": ["order queue"],
+        "summary": "Update an existing order queue",
+        "description": "Update an existing order queue",
+        "consumes": ["application/json", "application/xml"],
+        "produces": ["application/json", "application/xml"],
+        "parameters": [
+          {
+            "name": "orderQueueId",
+            "in": "path",
+            "description": "ID of order queue to update",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "body",
+            "description": "Order queue object",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "foodId": {
+                  "type": "string",
+                  "example": "GvpCcQA5uKOCfoYyrdr8"
+                },
+                "status": {
+                  "type": "string",
+                  "enum": ["processing", "deny", "completed"]
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "400": {
+            "description": "Invalid ID Supplied"
+          },
+          "404": {
+            "description": "Order Queue Not Found"
+          },
+          "405": {
+            "description": "Validation Exception"
+          }
+        }
+      }
+    },
+
     "/food": {
       "post": {
         "tags": ["food"],
@@ -755,7 +957,7 @@
         "start_date": { "type": "number", "example": 1607364449411 },
         "closing_date": { "type": "number", "example": 1807964449421 },
         "thumbnail": { "type": "string", "example": "meomeomeo.png" },
-        "discount": { "type": "number", "example": 1807964449421 }
+        "discount": { "type": "number", "example": 10 }
       }
     },
     "Order": {
@@ -770,20 +972,37 @@
             "type": "object",
             "properties": {
               "food": { "type": "string", "example": "GvpCcQA5uKOCfoYyrdr8" },
-              "quantity": { "type": "number", "example": 5 }
+              "quantity": { "type": "number", "example": 5 },
+              "status": {
+                "type": "string",
+                "enum": ["processing", "deny", "completed"]
+              }
             }
           }
         },
-        "status": {
-          "type": "string",
-          "enum": [
-            "waiting for acceptance",
-            "accepted",
-            "unaccepted",
-            "prepared",
-            "unprepared",
-            "served"
-          ]
+        "discount": { "type": "string", "example": "YM8WJe6Wu8Ya8w8GdsYu" },
+        "note": { "type": "string", "example": "note" }
+      }
+    },
+    "OrderQueue": {
+      "type": "object",
+      "properties": {
+        "table_id": { "type": "number", "example": 2 },
+        "time_order": { "type": "number", "example": 1607364449411 },
+        "manager": { "type": "string", "example": "n8RMDJ6m7EmAv9BNrCeb" },
+        "list_order_item": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "food": { "type": "string", "example": "GvpCcQA5uKOCfoYyrdr8" },
+              "quantity": { "type": "number", "example": 5 },
+              "status": {
+                "type": "string",
+                "enum": ["processing", "deny", "completed"]
+              }
+            }
+          }
         },
         "discount": { "type": "string", "example": "YM8WJe6Wu8Ya8w8GdsYu" },
         "note": { "type": "string", "example": "note" }
