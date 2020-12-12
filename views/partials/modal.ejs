@@ -1,0 +1,18 @@
+<div class="modal-container">
+  <input id="modal-toggle" type="checkbox" />
+  <label class="modal-backdrop" for="modal-toggle"></label>
+  <div class="modal-content" data->
+    <label class="modal-close" for="modal-toggle">&#x2715;</label>
+    <h2>
+      <%= title %>
+    </h2>
+    <hr />
+
+    <form action="" method="POST">
+      <input type="text" name="table_id" style="display: none;" data-deny-table-id>
+      <input type="text" name="food_id" style="display: none;" data-deny-food-id>
+      <textarea name="note" data-deny-note class="noteInput" rows="5" placeholder="Why did you deny this food/order"></textarea>
+      <button type="submit" class="action-btn">Deny & Send note</button>
+    </form>
+  </div>
+</div>

@@ -1,112 +1,216 @@
-const dumbData = [
-  {
-    order_id: '1607609856820',
-    order_name: 'Table #4',
-    order_time: 1607609856820,
-    foods: [
-      { food_name: 'Pho', quantity: 3, status: 'waiting' },
-      { food_name: 'Sting dau', quantity: 2, status: 'waiting' },
-      { food_name: 'Tra da', quantity: 1, status: 'waiting' },
-    ],
-    note: 'Khong hanh, khong gia',
-  },
-  {
-    order_id: '1607609995431',
-    order_name: 'Table #1',
-    order_time: 1607609995431,
-    foods: [
-      { food_name: 'Mi xao', quantity: 1, status: 'waiting' },
-      { food_name: 'Com chien', quantity: 1, status: 'waiting' },
-    ],
-    note: 'Khong cay',
-  },
-];
-
 // ---------------  GLOBAL VARIABLES ---------------------
 const ACTIVE = 'selected';
+const DONE = 'completed';
+const PROCESSING = 'processing';
+const DENY = 'deny';
+const WAITING = 'waiting';
 
-let currentActiveId = '1607609995431';
-let currentOrderList = [];
+class ManagerController {
+  constructor(data) {
+    console.log(data);
+    this.currentActiveId = data[0]._id;
+    this.currentOrderList = data;
 
-// ---------------- FUNCTIONS -----------------------
-const displayTasks = (orderId) => {
-  let order = currentOrderList.find(
-    (o) => o.order_id.toString() === orderId.toString()
-  );
-  if (order) {
-    let parent = document.querySelector('[data-tasks]');
-    parent.innerHTML = '';
+    this.renderTemplates();
+    this.setOrderListEvent();
+    this.setTaskEvents();
+  }
 
-    order.foods.forEach((food) => {
-      let node = document
-        .getElementById('task-template')
-        .content.cloneNode(true);
+  setState = (newData) => {
+    if (!newData.find((e) => e._id.toString() === this.currentActiveId))
+      this.currentActiveId = data[0]._id;
+    this.currentOrderList = newData;
 
-      console.log(node);
-      node.querySelector('[data-name]').textContent = food.food_name;
+    this.renderTemplates();
+    this.setEvent();
+  };
 
-      parent.appendChild(node);
+  displayTasks = () => {
+    let order = this.currentOrderList.find(
+      (o) => o._id.toString() === this.currentActiveId.toString()
+    );
+    if (order) {
+      let parent = document.querySelector('[data-tasks]');
+      parent.innerHTML = '';
+
+      order.list_order_item.forEach((food) => {
+        let node = document
+          .getElementById('task-template')
+          .content.cloneNode(true);
+        node.querySelector('[data-name]').textContent = food.food_name;
+        node
+          .querySelector('[data-task]')
+          .setAttribute('data-task-id', food.food);
+
+        node.querySelector('[data-holder]').classList = food.status;
+        parent.appendChild(node);
+      });
+
+      document.querySelector('[data-order-note]').textContent =
+        '*' + order.note;
+
+      this.setTaskEvents();
+    }
+  };
+
+  setActiveOrder = (nextActiveId) => {
+    if (this.currentActiveId)
+      document.getElementById(this.currentActiveId).classList.remove(ACTIVE);
+    document.getElementById(nextActiveId).classList.add(ACTIVE);
+
+    this.currentActiveId = nextActiveId;
+    this.displayTasks();
+  };
+
+  createOrderElement = (order, template) => {
+    let node = template.content.cloneNode(true);
+
+    node.querySelector('[data-order]').setAttribute('id', order._id);
+    node.querySelector('[data-order]').setAttribute('data-order-id', order._id);
+    node.querySelector(
+      '[data-order-title]'
+    ).textContent = `Table #${order.table_id}`;
+    node.querySelector('[data-order-time]').textContent = `${subtractTime(
+      order.time_order
+    )} mins`;
+
+    return node;
+  };
+
+  renderTemplates = () => {
+    console.log('Render');
+    const parentElement = document.querySelector('[data-order-list]');
+    const template = document.getElementById('order-template');
+    parentElement.innerHTML = '';
+    this.currentOrderList.forEach((order) => {
+      parentElement.appendChild(this.createOrderElement(order, template));
     });
 
-    document.querySelector('[data-order-note]').textContent = '*' + order.note;
-  }
-};
+    //render task
+    this.setActiveOrder(this.currentActiveId);
+  };
 
-const setActiveOrder = (nextActiveId) => {
-  if (currentActiveId)
-    document.getElementById(currentActiveId).classList.remove(ACTIVE);
-  document.getElementById(nextActiveId).classList.add(ACTIVE);
+  //HELPERS
+  orderIsCompleted = (orderId) => {
+    let order = this.currentOrderList.find(
+      (o) => o._id.toString() === orderId.toString()
+    );
+    if (!order) return false;
 
-  currentActiveId = nextActiveId;
-  displayTasks(currentActiveId);
-};
+    for (let index = 0; index < order.list_order_item.length; index++) {
+      if (order.list_order_item[index].status !== DONE) return false;
+    }
 
-const subtractTime = (prevTime) => {
-  let time = Date.now() - prevTime;
-  let diffHr = Math.floor((time % 86400000) / 3600000);
-  let diffMins = Math.round(((time % 86400000) % 3600000) / 60000);
-  return `${diffHr == 0 ? '' : diffHr + 'h'} ${diffMins}`;
-};
+    return true;
+  };
 
-const createOrderElement = (order, template) => {
-  let node = template.content.cloneNode(true);
+  // ---------------- EVENT HANDLER ---------------------
+  orderItemClicked = (ev) => {
+    ev.preventDefault();
 
-  node.querySelector('[data-order]').setAttribute('id', order.order_id);
-  node
-    .querySelector('[data-order]')
-    .setAttribute('data-order-id', order.order_id);
-  node.querySelector('[data-order-title]').textContent = order.order_name;
-  node.querySelector('[data-order-time]').textContent = `${subtractTime(
-    order.order_time
-  )} mins`;
+    const nextId = ev.target.closest('[data-order]');
+    this.setActiveOrder(nextId.id);
+  };
 
-  return node;
-};
+  acceptButtonClicked = (ev) => {
+    ev.preventDefault();
 
-const renderTemplates = (data) => {
-  const parentElement = document.querySelector('[data-order-list]');
-  const template = document.getElementById('order-template');
-  parentElement.innerHTML = '';
-  data.forEach((order) => {
-    parentElement.appendChild(createOrderElement(order, template));
-  });
+    //Get id of that food
+    let taskElement = ev.target.closest('[data-task]');
+    let id = taskElement.getAttribute('data-task-id');
 
-  //render task
-  setActiveOrder(currentActiveId);
-};
+    //TODO: Send FCM
+    console.log('FCM', id, 'Status = Processing');
 
-// ---------------- EVENT HANDLER ---------------------
-const orderItemClicked = (ev) => {
-  ev.preventDefault();
+    //TODO: Update Collection => refresh
 
-  const nextId = ev.target.closest('[data-order]');
-  setActiveOrder(nextId.id);
-};
+    //Update state
+    taskElement.querySelector('[data-holder]').classList = '';
+    taskElement.querySelector('[data-holder]').classList = PROCESSING;
+  };
+
+  doneButtonClicked = (ev) => {
+    ev.preventDefault();
+
+    //element
+    let taskElement = ev.target.closest('[data-task]');
+    let id = taskElement.getAttribute('data-task-id');
+
+    //TODO: Send FCM
+    console.log('FCM', id, 'Status = Processing');
+
+    //TODO: Update state
+
+    //TODO: if All is checked => Store DB order, delete orderqueue
+    //TODO: else update state only
+    if (this.orderIsCompleted(this.currentActiveId))
+      console.log('DELETE & STORE TO ORDER COLLECTION', id);
+    else console.log('UPDATE STATE ONLY');
+
+    //UPDATE STATE
+    taskElement.querySelector('[data-holder]').classList = '';
+    taskElement.querySelector('[data-holder]').classList = DONE;
+  };
+
+  denyButtonPressed = (ev) => {
+    ev.preventDefault();
+    console.log('deny');
+
+    let taskElement = ev.target.closest('[data-task]');
+    let id = taskElement.getAttribute('data-task-id');
+
+    //DISABLE THAT TASK
+
+    //STORE HIDDEN DATA
+    document.querySelector('[data-deny-table-id]').value = this.currentActiveId;
+    document.querySelector('[data-deny-food-id]').value = id;
+    document.querySelector('[data-deny-note]').value = '';
+
+    //SHOW MODAL
+    let check = document.getElementById('modal-toggle').checked;
+    document.getElementById('modal-toggle').checked = !check;
+
+    //TODO: RELOAD DATA AND RENDER
+  };
+
+  //SET EVENTS
+  setTaskEvents = () => {
+    document.querySelectorAll('[data-btn-accept]').forEach((element) => {
+      element.addEventListener('click', this.acceptButtonClicked);
+    });
+
+    document.querySelectorAll('[data-btn-done]').forEach((element) => {
+      element.addEventListener('click', this.doneButtonClicked);
+    });
+
+    document.querySelectorAll('[data-btn-deny]').forEach((element) => {
+      element.addEventListener('click', this.denyButtonPressed);
+    });
+  };
+
+  setOrderListEvent = () => {
+    document.querySelectorAll('[data-order]').forEach((element) => {
+      element.addEventListener('click', this.orderItemClicked);
+    });
+  };
+}
+
+// ---------------- FUNCTIONS -----------------------
+
+//HTTP REquest
 
 // ---------------- SCRIPT RUNNING ---------------------
-currentOrderList = dumbData;
-renderTemplates(dumbData);
 
-document.querySelectorAll('[data-order]').forEach((element) => {
-  element.addEventListener('click', orderItemClicked);
+window.addEventListener('load', () => {
+  console.log('START');
+  fetch('/order-queue').then((response) => {
+    if (response.status !== 200)
+      console.log('GET ERROR, code: ', response.status);
+    else {
+      response.json().then((data) => {
+        console.log(data);
+        let mc = new ManagerController(data);
+      });
+    }
+  });
 });

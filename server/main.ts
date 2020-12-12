@@ -49,6 +49,10 @@ async function initServer() {
     });
   });
 
+  app.get('/manager', (req, res) => {
+    res.render('pages/managerPage', {});
+  });
+
   app.listen(port, () => {
     console.log(`Server is listening at http://localhost:${port}`);
   });

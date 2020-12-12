@@ -162,7 +162,7 @@ h1 {
 .tasks label::after {
   content: '';
   position: absolute;
-  left: 1.6rem;
+  left: 0;
   right: -0.6rem;
   height: 2px;
   background-color: #333;
@@ -197,23 +197,65 @@ h1 {
   transition: transform 350ms ease-in-out;
 }
 
+.task-name {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
 .task-name svg {
   width: 2.3rem;
   height: 2.3rem;
   display: none;
+  margin-right: 1rem;
 }
 
-.progressing svg {
-  display: block;
+[data-btn-done] {
+  display: none;
 }
 
-[type='checkbox']:checked + label {
+.processing [cooking] {
+  display: inline-block;
+}
+
+.processing label {
+  font-weight: bold;
+  font-style: italic;
+}
+
+.processing [data-btn-done] {
+  display: inline;
+}
+
+.processing [data-btn-accept] {
+  display: none;
+}
+
+.completed [ticked] {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  margin-left: 1rem;
+  fill: green;
+}
+
+.completed label {
   opacity: 0.5;
+  color: green;
 }
 
-[type='checkbox']:checked + label:after {
+.deny label:after {
   transform: scaleX(1);
   transform-origin: left;
+}
+
+.completed .action-btn,
+.deny .action-btn {
+  display: none;
+}
+
+.deny {
+  opacity: 0.3;
 }
 
 .btns-container {
