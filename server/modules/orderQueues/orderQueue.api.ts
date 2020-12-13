@@ -8,13 +8,15 @@ const orderQueueService: OrderQueueService = new OrderQueueService();
 const foodService: FoodService = new FoodService();
 const authService: AuthService = new AuthService();
 
+//TODO: AUTH RESTRICT
+
 router.get('/', async (req, res) => {
   let orderQueues = await orderQueueService.findAllOrderQueue();
 
   res.json(orderQueues);
 });
 
-router.get('/:orderQueueId', authService.restrict, async (req, res) => {
+router.get('/:orderQueueId', async (req, res) => {
   const orderQueue = await orderQueueService.findOrderQueueById(
     req.params.orderQueueId
   );
@@ -26,6 +28,11 @@ router.post('/', authService.restrict, async (req, res) => {
   res.json({ _id: orderQueue.id });
 });
 
+router.put('/deny', async (req, res) => {
+  console.log(req.body);
+  res.json(req.body);
+});
+
 router.put('/:orderQueueId', authService.restrict, async (req, res) => {
   const result = await orderQueueService.updateOrderQueue(
     req.params.orderQueueId,
@@ -34,18 +41,16 @@ router.put('/:orderQueueId', authService.restrict, async (req, res) => {
   res.json(result);
 });
 
-router.put(
-  '/update-status/:orderQueueId',
-  authService.restrict,
-  async (req, res) => {
-    const result = await orderQueueService.updateStatusFoodOrderQueue(
-      req.params.orderQueueId,
-      req.body.foodId,
-      req.body.status
-    );
-    res.json(result);
-  }
-);
+router.put('/update-status/:orderQueueId', async (req, res) => {
+  console.log('PUT RECEIEVED', req.body);
+
+  const result = await orderQueueService.updateStatusFoodOrderQueue(
+    req.params.orderQueueId,
+    req.body.foodId,
+    req.body.status
+  );
+  res.json(result);
+});
 
 router.delete('/:orderQueueId', authService.restrict, async (req, res) => {
   const result = await orderQueueService.deleteOrderQueue(

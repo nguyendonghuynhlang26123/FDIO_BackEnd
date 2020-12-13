@@ -23,12 +23,27 @@ const getData = async () => {
   return newQueue;
 };
 
-export const managerSocket = (socket) => {
+export const managerSocket = (io) => {
   const service = new OrderQueueService();
-  socket.of('/manager').on('connection', async (socket) => {
+  io.of('/manager').on('connection', async (socket) => {
     console.log('manager connected');
-
     let result = await getData();
     socket.emit('init', result);
+
+    //ACCEPTING ORDER
+    socket.on('processing', (data) => {
+      console.log(data);
+      io.of('/kitchen').emit('acceptOrder', data);
+    });
+
+    //COMPLETED ORDER
+    socket.on('completed', (data) => {
+      io.of('/kitchen').emit('removeOrder', data._id);
+    });
+
+    //DENY ORDER
+    socket.on('deny', (data) => {
+      io.of('/kitchen').emit('removeOrder', data._id);
+    });
   });
 };

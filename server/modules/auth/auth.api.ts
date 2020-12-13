@@ -6,9 +6,10 @@ const authService: AuthService = new AuthService();
 
 router.get('/login', (req, res) => {
   if (req.session.auth) res.redirect('/docs');
-  res.render('pages/loginPage', {
-    message: req.session.error,
-  });
+  else
+    res.render('pages/loginPage', {
+      message: req.session.error,
+    });
 });
 
 router.post('/login', (req, res) => {

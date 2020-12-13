@@ -27,6 +27,10 @@ h1 {
   text-align: center;
 }
 
+.disabled {
+  display: none;
+}
+
 #container {
   display: flex;
   border: 2px solid white;

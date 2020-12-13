@@ -6,6 +6,13 @@ class ManagerController {
     this.currentOrderList = data;
 
     this.renderTemplates();
+    document
+      .querySelector('[data-modal-btn]')
+      .addEventListener('click', this.modalBtnPressed);
+
+    //BTN Events
+    this.setAcceptAllHandler();
+    this.setRemoveCompletedHandler();
   }
 
   //Public Fns
@@ -24,9 +31,10 @@ class ManagerController {
   // TEMPLATE GENERATORS:
   createTask = (food) => {
     let node = document.getElementById('task-template').content.cloneNode(true);
-    node.querySelector('[data-name]').textContent = food.food_name;
-    node.querySelector('[data-task]').setAttribute('data-task-id', food.food);
-
+    node.querySelector(
+      '[data-name]'
+    ).textContent = `${food.food_name} x ${food.quantity}`;
+    node.querySelector('[data-task]').id = food.food;
     node.querySelector('[data-holder]').classList = food.status;
 
     //EVENTS
@@ -89,6 +97,8 @@ class ManagerController {
 
     this.currentActiveId = nextActiveId;
     this.displayTasks();
+
+    this.acceptAllBtnToggle();
   };
 
   renderTemplates = () => {
@@ -103,7 +113,67 @@ class ManagerController {
     this.setActiveOrder(this.currentActiveId);
   };
 
+  setStatus = (status, id) => {
+    let food = null;
+    let targetOrder = null;
+    //UPDATE CURRENT LIST
+    this.currentOrderList = this.currentOrderList.map((order) => {
+      if (order._id.toString() !== this.currentActiveId) return order;
+      targetOrder = order;
+      order.list_order_item = order.list_order_item.map((f) => {
+        if (f.food !== id) return f;
+        food = f;
+        return { ...f, status: status };
+      });
+      return order;
+    });
+
+    //SEND REQUEST TO SERVER TO UPDATE DB
+    let path = `/order-queue/update-status/${this.currentActiveId}`;
+    sendHTTPRequest('PUT', path, {
+      foodId: id,
+      status: status,
+    })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => {
+        alert(`Set status error! Error: ${err}`);
+      });
+
+    //SEND SOCKET
+    if (status !== WAITING) {
+      this.socket.emit(status, {
+        _id: this.currentActiveId + id,
+        food_name: food.food_name,
+        quantity: food.quantity,
+        table_id: targetOrder.table_id,
+        note: targetOrder.note,
+      });
+    }
+
+    //UPDATE UI
+    document.getElementById(id).querySelector('[data-holder]').classList = '';
+    document
+      .getElementById(id)
+      .querySelector('[data-holder]').classList = status;
+    this.acceptAllBtnToggle();
+  };
+
   //HELPERS
+  orderIsProcessing = (orderId) => {
+    let order = this.currentOrderList.find(
+      (o) => o._id.toString() === orderId.toString()
+    );
+    if (!order) return false;
+
+    for (let index = 0; index < order.list_order_item.length; index++) {
+      if (order.list_order_item[index].status !== PROCESSING) return false;
+    }
+
+    return true;
+  };
+
   orderIsCompleted = (orderId) => {
     let order = this.currentOrderList.find(
       (o) => o._id.toString() === orderId.toString()
@@ -117,7 +187,35 @@ class ManagerController {
     return true;
   };
 
+  getFood = (foodId) => {
+    for (const order of this.currentOrderList) {
+      let food = order.list_order_item.find(
+        (f) => f.food.toString() === foodId.toString()
+      );
+      if (food) return food;
+    }
+  };
+
+  toggleModal = () => {
+    let check = document.getElementById('modal-toggle').checked;
+    document.getElementById('modal-toggle').checked = !check;
+  };
+
+  changeStatusInCurList = () => {};
+
   // ---------------- EVENT HANDLER ---------------------
+  acceptAllBtnToggle = () => {
+    if (
+      this.orderIsProcessing(this.currentActiveId) ||
+      this.orderIsCompleted(this.currentActiveId)
+    )
+      document.querySelector('[data-accept-all-order]').classList.add(DISABLE);
+    else
+      document
+        .querySelector('[data-accept-all-order]')
+        .classList.remove(DISABLE);
+  };
+
   orderItemClicked = (ev) => {
     ev.preventDefault();
 
@@ -130,16 +228,13 @@ class ManagerController {
 
     //Get id of that food
     let taskElement = ev.target.closest('[data-task]');
-    let id = taskElement.getAttribute('data-task-id');
+    let id = taskElement.getAttribute('id');
+    let food = this.getFood(id);
+    let order = this.currentOrderList.find(
+      (o) => o._id.toString() === this.currentActiveId.toString()
+    );
 
-    //TODO: Send FCM
-    console.log('FCM', id, 'Status = Processing');
-
-    //TODO: Update Collection => refresh
-
-    //Update state
-    taskElement.querySelector('[data-holder]').classList = '';
-    taskElement.querySelector('[data-holder]').classList = PROCESSING;
+    this.setStatus(PROCESSING, id);
   };
 
   doneButtonClicked = (ev) => {
@@ -147,22 +242,9 @@ class ManagerController {
 
     //element
     let taskElement = ev.target.closest('[data-task]');
-    let id = taskElement.getAttribute('data-task-id');
+    let id = taskElement.getAttribute('id');
 
-    //TODO: Send FCM
-    console.log('FCM', id, 'Status = Processing');
-
-    //TODO: Update state
-
-    //TODO: if All is checked => Store DB order, delete orderqueue
-    //TODO: else update state only
-    if (this.orderIsCompleted(this.currentActiveId))
-      console.log('DELETE & STORE TO ORDER COLLECTION', id);
-    else console.log('UPDATE STATE ONLY');
-
-    //UPDATE STATE
-    taskElement.querySelector('[data-holder]').classList = '';
-    taskElement.querySelector('[data-holder]').classList = DONE;
+    this.setStatus(DONE, id);
   };
 
   denyButtonPressed = (ev) => {
@@ -170,7 +252,7 @@ class ManagerController {
     console.log('deny');
 
     let taskElement = ev.target.closest('[data-task]');
-    let id = taskElement.getAttribute('data-task-id');
+    let id = taskElement.getAttribute('id');
 
     //DISABLE THAT TASK
 
@@ -180,10 +262,61 @@ class ManagerController {
     document.querySelector('[data-deny-note]').value = '';
 
     //SHOW MODAL
-    let check = document.getElementById('modal-toggle').checked;
-    document.getElementById('modal-toggle').checked = !check;
+    this.toggleModal();
+  };
 
-    //TODO: RELOAD DATA AND RENDER
+  modalBtnPressed = (ev) => {
+    ev.preventDefault();
+    let parent = ev.target.parentElement;
+    let id = parent.querySelector('[data-deny-food-id]').value;
+
+    this.toggleModal();
+    this.setStatus(DENY, id);
+
+    sendHTTPRequest('PUT', '/order-queue/deny', {
+      table_id: parent.querySelector('[data-deny-table-id]').value,
+      food_id: parent.querySelector('[data-deny-food-id]').value,
+      note: parent.querySelector('[data-deny-note]').value,
+    }).then((response) => {
+      console.log(response);
+    });
+  };
+
+  //BUTTON EVENTS
+  setAcceptAllHandler = () => {
+    document
+      .querySelector('[data-accept-all-order]')
+      .addEventListener('click', (ev) => {
+        ev.preventDefault();
+        document
+          .querySelector('[data-accept-all-order]')
+          .classList.add(DISABLE);
+
+        let order = this.currentOrderList.find(
+          (order) => order._id.toString() === this.currentActiveId
+        );
+
+        for (const food of order.list_order_item) {
+          this.setStatus(PROCESSING, food.food);
+        }
+      });
+  };
+
+  setRemoveCompletedHandler = () => {
+    document
+      .querySelector('[data-remove-complete]')
+      .addEventListener('click', (ev) => {
+        this.currentOrderList = this.currentOrderList.filter((order) => {
+          if (this.orderIsCompleted(order._id)) {
+            document.getElementById(order._id).remove();
+            return false;
+          }
+          return true;
+        });
+
+        this.currentActiveId = this.currentOrderList[0]._id;
+        this.setActiveOrder(this.currentActiveId);
+      });
   };
 }
 
@@ -195,21 +328,22 @@ class ManagerController {
 
 window.addEventListener('load', () => {
   console.log('START');
-  fetch('/order-queue').then((response) => {
-    if (response.status !== 200)
-      console.log('GET ERROR, code: ', response.status);
-    else {
-      response.json().then((data) => {
-        console.log(data);
-      });
-    }
-  });
 });
 
 const socket = io('/manager');
 let mc = null;
 
+const debugMode = (data) => {
+  data = data.map((order) => {
+    order.list_order_item = order.list_order_item.map((f) => ({
+      ...f,
+      status: WAITING,
+    }));
+  });
+};
+
 socket.on('init', (data) => {
+  //debugMode(data);
   console.log(data);
   mc = new ManagerController(data, socket);
 });
