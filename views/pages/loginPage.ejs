@@ -3,23 +3,25 @@
 
 <head>
     <%- include('../partials/head'); %>
-    <link rel="stylesheet" href="/css/login.css">
-    <title>Admin</title>
+        <link rel="stylesheet" href="/css/login.css">
+        <title>Admin</title>
 </head>
 
 <body class="container">
-    <form class="form-signin">
+    <form class="form-signin" method="POST" action="/login">
         <h1 class="h3 mb-3 font-weight-normal text-center">Log in</h1>
         <label for="inputEmail" class="sr-only">Username</label>
-        <input type="text" id="inputEmail" class="form-control" placeholder="Username" required autofocus>
+        <input type="text" name="username" class="form-control" placeholder="Username" required autofocus>
         <label for="inputPassword" class="sr-only">Password</label>
-        <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+        <input type="password" name="password" class="form-control" placeholder="Password" required>
 
         <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
         <p class="mt-5 mb-3 text-muted text-center">&copy; FDIO System - 2020</p>
     </form>
 
-    <footer><%- include('../partials/footer'); %></footer>
+    <footer>
+        <%- include('../partials/footer'); %>
+    </footer>
     <%- include('../partials/bootstrap'); %>
 </body>
 

@@ -1,6 +1,6 @@
-import { UserModel } from "../../models";
-import { UserInterface } from "../../interfaces";
-import * as bcrypt from "bcrypt";
+import { UserModel } from '../../models';
+import { UserInterface } from '../../interfaces';
+import * as bcrypt from 'bcrypt';
 
 export class UserService {
   async hashPassword(password: string): Promise<string> {
@@ -11,16 +11,16 @@ export class UserService {
   async createUser(data: UserInterface) {
     try {
       if (!data.username || !data.password) {
-        throw new Error("Cannot Create User.");
+        throw new Error('Cannot Create User.');
       }
       data.created_at = Date.now();
-      data.role = "manager";
+      data.role = 'manager';
       delete data._id;
       data.password = await this.hashPassword(data.password);
       return await UserModel.add(data);
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Create User.");
+      throw new Error('Cannot Create User.');
     }
   }
 
@@ -40,7 +40,7 @@ export class UserService {
       return user;
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Find User.");
+      throw new Error('Cannot Find User.');
     }
   }
 
@@ -64,7 +64,7 @@ export class UserService {
       return users;
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Find All User.");
+      throw new Error('Cannot Find All User.');
     }
   }
 
@@ -79,7 +79,7 @@ export class UserService {
       return { _id: id, result: result };
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Update User.");
+      throw new Error('Cannot Update User.');
     }
   }
 
@@ -92,7 +92,7 @@ export class UserService {
       return { _id: id, result: result };
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Update User.");
+      throw new Error('Cannot Update User.');
     }
   }
 
@@ -102,18 +102,19 @@ export class UserService {
       return { _id: id, result: result };
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Delete User.");
+      throw new Error('Cannot Delete User.');
     }
   }
 
   async findUserByUsername(username: string): Promise<UserInterface> {
     try {
-      let doc = await UserModel.where("username", "==", username)
+      let doc = await UserModel.where('username', '==', username)
         .limit(1)
         .get();
       if (!doc.empty) {
-        throw new Error("Not Found User.");
+        throw new Error('Not Found User.');
       }
+
       const user: UserInterface = {
         _id: doc[0].id,
         username: doc[0].data().username,
@@ -123,8 +124,7 @@ export class UserService {
       };
       return user;
     } catch (e) {
-      console.log(e);
-      throw new Error("Cannot Find User.");
+      throw new Error('Cannot Find User.');
     }
   }
 }
