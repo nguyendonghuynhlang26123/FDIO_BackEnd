@@ -9,6 +9,7 @@ import * as foodListApi from './modules/foodLists/foodList.api';
 import * as foodApi from './modules/foods/food.api';
 import * as swaggerUi from 'swagger-ui-express';
 import * as session from 'express-session';
+import { kitchenSocket, managerSocket } from './modules/socket';
 
 async function initServer() {
   const app = express();
@@ -53,9 +54,20 @@ async function initServer() {
     res.render('pages/managerPage', {});
   });
 
-  app.listen(port, () => {
+  app.get('/kitchen', (req, res) => {
+    res.render('pages/kitchenPage', {});
+  });
+
+  let server = app.listen(port, () => {
     console.log(`Server is listening at http://localhost:${port}`);
   });
+
+  //Socket
+  let io = require('socket.io')(server);
+  app.set('socket', io);
+
+  kitchenSocket(io);
+  managerSocket(io);
 }
 
 initServer();

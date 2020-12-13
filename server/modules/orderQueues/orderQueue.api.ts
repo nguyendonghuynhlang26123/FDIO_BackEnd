@@ -11,21 +11,6 @@ const authService: AuthService = new AuthService();
 router.get('/', async (req, res) => {
   let orderQueues = await orderQueueService.findAllOrderQueue();
 
-  let newQueue = await Promise.all(
-    orderQueues.map(async function (order) {
-      let foodList = order.list_order_item;
-      foodList = await Promise.all(
-        foodList.map(async (food) => {
-          const f = await foodService.findFoodById(food.food);
-          food['food_name'] = f.name;
-          return food;
-        })
-      );
-      order.list_order_item = foodList;
-      return order;
-    })
-  );
-
   res.json(orderQueues);
 });
 

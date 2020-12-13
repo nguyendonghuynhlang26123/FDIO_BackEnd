@@ -36,6 +36,22 @@ h1 {
   transform: translate(-50%, -50%);
 }
 
+.routing-btn {
+  display: inline-block;
+  padding: 0.4rem;
+  border: 2px solid white;
+  border-radius: 50%;
+  position: absolute;
+  right: 1.5rem;
+  top: 1.5rem;
+}
+
+.routing-btn svg {
+  width: 2rem;
+  height: 2rem;
+  fill: white;
+}
+
 .order-container {
   margin: auto 40px;
   color: white;
@@ -50,7 +66,26 @@ h1 {
 
 .order-container ul {
   margin: 20px 0;
-  width: 250px;
+  width: 300px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.order-container ul::-webkit-scrollbar-track {
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: #6dd5ed;
+}
+
+.order-container ul::-webkit-scrollbar {
+  width: 5px;
+  background-color: #6dd5ed;
+}
+
+.order-container ul::-webkit-scrollbar-thumb {
+  background-color: #ffffff;
+  border: none;
+  border-radius: 10px;
 }
 
 .order-items {
@@ -290,6 +325,22 @@ h1 {
 
 .action-btn {
   padding: 0.3rem 0.2rem;
+}
+
+/* KITCHEN */
+#queue-container {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
+#queue-container .task-container {
+  flex-grow: 1;
+  width: auto;
+}
+#queue-container .note {
+  padding-top: 1rem;
 }
 
 @media screen and (max-width: 800px) {

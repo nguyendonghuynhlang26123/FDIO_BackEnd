@@ -1,30 +1,70 @@
-// ---------------  GLOBAL VARIABLES ---------------------
-const ACTIVE = 'selected';
-const DONE = 'completed';
-const PROCESSING = 'processing';
-const DENY = 'deny';
-const WAITING = 'waiting';
-
 class ManagerController {
-  constructor(data) {
+  constructor(data, socket) {
     console.log(data);
+    this.socket = socket;
     this.currentActiveId = data[0]._id;
     this.currentOrderList = data;
 
     this.renderTemplates();
-    this.setOrderListEvent();
-    this.setTaskEvents();
   }
 
-  setState = (newData) => {
-    if (!newData.find((e) => e._id.toString() === this.currentActiveId))
-      this.currentActiveId = data[0]._id;
-    this.currentOrderList = newData;
+  //Public Fns
+  addNewOrder = (newOrder) => {
+    this.currentOrderList.push(newOrder);
+    if (this.currentOrderList.length === 1) {
+      this.currentActiveId = newOrder._id;
+      this.setActiveOrder(this.currentActiveId);
+    }
 
-    this.renderTemplates();
-    this.setEvent();
+    document
+      .querySelector('[data-order-list]')
+      .appendChild(this.createOrderElement(newOrder));
   };
 
+  // TEMPLATE GENERATORS:
+  createTask = (food) => {
+    let node = document.getElementById('task-template').content.cloneNode(true);
+    node.querySelector('[data-name]').textContent = food.food_name;
+    node.querySelector('[data-task]').setAttribute('data-task-id', food.food);
+
+    node.querySelector('[data-holder]').classList = food.status;
+
+    //EVENTS
+    node
+      .querySelector('[data-btn-accept]')
+      .addEventListener('click', this.acceptButtonClicked);
+
+    node
+      .querySelector('[data-btn-done]')
+      .addEventListener('click', this.doneButtonClicked);
+
+    node
+      .querySelector('[data-btn-deny]')
+      .addEventListener('click', this.denyButtonPressed);
+
+    return node;
+  };
+
+  createOrderElement = (order, template = null) => {
+    if (!template) template = document.getElementById('order-template');
+    let node = template.content.cloneNode(true);
+
+    node.querySelector('[data-order]').setAttribute('id', order._id);
+    node.querySelector('[data-order]').setAttribute('data-order-id', order._id);
+    node.querySelector(
+      '[data-order-title]'
+    ).textContent = `Table #${order.table_id}`;
+    node.querySelector('[data-order-time]').textContent = `${subtractTime(
+      order.time_order
+    )} mins`;
+
+    node
+      .querySelector('[data-order]')
+      .addEventListener('click', this.orderItemClicked);
+    return node;
+  };
+
+  // -------------- DISPLAY --------------------
   displayTasks = () => {
     let order = this.currentOrderList.find(
       (o) => o._id.toString() === this.currentActiveId.toString()
@@ -34,22 +74,11 @@ class ManagerController {
       parent.innerHTML = '';
 
       order.list_order_item.forEach((food) => {
-        let node = document
-          .getElementById('task-template')
-          .content.cloneNode(true);
-        node.querySelector('[data-name]').textContent = food.food_name;
-        node
-          .querySelector('[data-task]')
-          .setAttribute('data-task-id', food.food);
-
-        node.querySelector('[data-holder]').classList = food.status;
-        parent.appendChild(node);
+        parent.appendChild(this.createTask(food));
       });
 
       document.querySelector('[data-order-note]').textContent =
         '*' + order.note;
-
-      this.setTaskEvents();
     }
   };
 
@@ -62,23 +91,7 @@ class ManagerController {
     this.displayTasks();
   };
 
-  createOrderElement = (order, template) => {
-    let node = template.content.cloneNode(true);
-
-    node.querySelector('[data-order]').setAttribute('id', order._id);
-    node.querySelector('[data-order]').setAttribute('data-order-id', order._id);
-    node.querySelector(
-      '[data-order-title]'
-    ).textContent = `Table #${order.table_id}`;
-    node.querySelector('[data-order-time]').textContent = `${subtractTime(
-      order.time_order
-    )} mins`;
-
-    return node;
-  };
-
   renderTemplates = () => {
-    console.log('Render');
     const parentElement = document.querySelector('[data-order-list]');
     const template = document.getElementById('order-template');
     parentElement.innerHTML = '';
@@ -172,27 +185,6 @@ class ManagerController {
 
     //TODO: RELOAD DATA AND RENDER
   };
-
-  //SET EVENTS
-  setTaskEvents = () => {
-    document.querySelectorAll('[data-btn-accept]').forEach((element) => {
-      element.addEventListener('click', this.acceptButtonClicked);
-    });
-
-    document.querySelectorAll('[data-btn-done]').forEach((element) => {
-      element.addEventListener('click', this.doneButtonClicked);
-    });
-
-    document.querySelectorAll('[data-btn-deny]').forEach((element) => {
-      element.addEventListener('click', this.denyButtonPressed);
-    });
-  };
-
-  setOrderListEvent = () => {
-    document.querySelectorAll('[data-order]').forEach((element) => {
-      element.addEventListener('click', this.orderItemClicked);
-    });
-  };
 }
 
 // ---------------- FUNCTIONS -----------------------
@@ -209,8 +201,20 @@ window.addEventListener('load', () => {
     else {
       response.json().then((data) => {
         console.log(data);
-        let mc = new ManagerController(data);
       });
     }
   });
+});
+
+const socket = io('/manager');
+let mc = null;
+
+socket.on('init', (data) => {
+  console.log(data);
+  mc = new ManagerController(data, socket);
+});
+
+socket.on('addOrder', (data) => {
+  console.log(data);
+  mc.addNewOrder(data);
 });
