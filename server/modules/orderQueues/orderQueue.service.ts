@@ -1,25 +1,30 @@
-import { OrderQueueModel } from "../../models";
-import { OrderQueueInterface } from "../../interfaces";
-import { OrderService } from "../orders/order.service";
+import { OrderQueueModel } from '../../models';
+import { OrderQueueInterface } from '../../interfaces';
+import { OrderService } from '../orders/order.service';
 
 export class OrderQueueService {
   constructor(private orderService: OrderService = new OrderService()) {}
 
   async createOrderQueue(data: OrderQueueInterface) {
     try {
-      if (!data.table_id || !data.manager || !data.list_order_item) {
-        throw new Error("Cannot Create Order Queue. Has Null Field.");
+      if (
+        !data.table_id ||
+        !data.manager ||
+        !data.list_order_item ||
+        !data.token
+      ) {
+        throw new Error('Cannot Create Order Queue. Has Null Field.');
       }
       data.created_at = Date.now();
       data.time_order = Date.now();
       data.list_order_item.forEach((e) => {
-        e.status = "processing";
+        e.status = 'processing';
       });
       delete data._id;
       return await OrderQueueModel.add(data);
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Create Order Queue.");
+      throw new Error('Cannot Create Order Queue.');
     }
   }
 
@@ -36,19 +41,20 @@ export class OrderQueueService {
         manager: doc.data().manager,
         list_order_item: doc.data().list_order_item,
         discount: doc.data().discount,
+        token: doc.data().token,
         note: doc.data().note,
         created_at: doc.data().created_at,
       };
       return orderQueue;
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Find Order Queue.");
+      throw new Error('Cannot Find Order Queue.');
     }
   }
 
   async findAllOrderQueue(): Promise<OrderQueueInterface[]> {
     try {
-      let collection = await OrderQueueModel.orderBy("created_at").get();
+      let collection = await OrderQueueModel.orderBy('created_at').get();
       if (collection.empty) {
         return [];
       }
@@ -61,6 +67,7 @@ export class OrderQueueService {
           manager: doc.data().manager,
           list_order_item: doc.data().list_order_item,
           discount: doc.data().discount,
+          token: doc.data().token,
           note: doc.data().note,
           created_at: doc.data().created_at,
         };
@@ -69,7 +76,7 @@ export class OrderQueueService {
       return orderQueues;
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Find All Order Queue.");
+      throw new Error('Cannot Find All Order Queue.');
     }
   }
 
@@ -82,31 +89,31 @@ export class OrderQueueService {
       return { _id: id, result: result };
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Update Order Queue.");
+      throw new Error('Cannot Update Order Queue.');
     }
   }
 
   async updateStatusFoodOrderQueue(
     id: string,
     food_id: string,
-    status: "processing" | "deny" | "completed"
+    status: 'processing' | 'deny' | 'completed' | 'waiting'
   ) {
     try {
       const orderQueue = await this.findOrderQueueById(id);
       if (!orderQueue) {
-        throw new Error("Not Found Order Queue.");
+        throw new Error('Not Found Order Queue.');
       }
-      orderQueue.list_order_item.forEach(item => {
+      orderQueue.list_order_item.forEach((item) => {
         if (item.food == food_id) {
           item.status = status;
           return item;
         }
-      })
+      });
       const result = await OrderQueueModel.doc(id).update(orderQueue);
       return { _id: id, result: result };
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Update Status Food Of Order Queue.");
+      throw new Error('Cannot Update Status Food Of Order Queue.');
     }
   }
 
@@ -116,7 +123,7 @@ export class OrderQueueService {
       return { _id: id, result: result };
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Delete Order Queue.");
+      throw new Error('Cannot Delete Order Queue.');
     }
   }
 
@@ -124,14 +131,14 @@ export class OrderQueueService {
     try {
       const orderQueue = await this.findOrderQueueById(id);
       if (!orderQueue) {
-        throw new Error("Not Found Order Queue.");
+        throw new Error('Not Found Order Queue.');
       }
       const order = await this.orderService.createOrder(orderQueue);
       const result = OrderQueueModel.doc(id).delete();
       return { order_id: order.id, result: result };
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Complete Order Queue.");
+      throw new Error('Cannot Complete Order Queue.');
     }
   }
 }

@@ -1,2 +1,4 @@
-import { OrderInterface } from ".";
-export class OrderQueueInterface extends OrderInterface {}
+import { OrderInterface } from '.';
+export class OrderQueueInterface extends OrderInterface {
+  token: String;
+}

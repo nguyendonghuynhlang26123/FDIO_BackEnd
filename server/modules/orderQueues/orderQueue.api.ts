@@ -24,8 +24,12 @@ router.get('/:orderQueueId', async (req, res) => {
 });
 
 router.post('/', authService.restrict, async (req, res) => {
-  const orderQueue = await orderQueueService.createOrderQueue(req.body);
-  res.json({ _id: orderQueue.id });
+  orderQueueService
+    .createOrderQueue(req.body)
+    .then((orderQueue) =>
+      res.json({ _id: orderQueue.id, status: 'successful' })
+    )
+    .catch((err) => res.json({ err: err, status: 'unsuccessful' }));
 });
 
 router.put('/deny', async (req, res) => {

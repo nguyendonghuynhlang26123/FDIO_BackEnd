@@ -12,7 +12,8 @@ let getQueue = async () => {
       if (food.status === 'processing') {
         let f = await foodService.findFoodById(food.food);
         result.push({
-          _id: order._id + food.food,
+          order_id: order._id,
+          food_id: food.food,
           food_name: f.name,
           quantity: food.quantity,
           table_id: order.table_id,

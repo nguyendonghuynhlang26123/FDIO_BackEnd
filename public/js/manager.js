@@ -144,11 +144,13 @@ class ManagerController {
     //SEND SOCKET
     if (status !== WAITING) {
       this.socket.emit(status, {
-        _id: this.currentActiveId + id,
+        order_id: this.currentActiveId,
+        food_id: id,
         food_name: food.food_name,
         quantity: food.quantity,
         table_id: targetOrder.table_id,
         note: targetOrder.note,
+        token: targetOrder.token,
       });
     }
 
@@ -343,7 +345,7 @@ const debugMode = (data) => {
 };
 
 socket.on('init', (data) => {
-  //debugMode(data);
+  debugMode(data);
   console.log(data);
   mc = new ManagerController(data, socket);
 });
