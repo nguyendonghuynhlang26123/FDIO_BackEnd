@@ -23,12 +23,14 @@ router.get('/:orderQueueId', async (req, res) => {
   res.json(orderQueue);
 });
 
-router.post('/', authService.restrict, async (req, res) => {
+router.post('/', async (req, res) => {
+  console.log(
+    'log ~ file: orderQueue.api.ts ~ line 27 ~ router.post ~ req.body',
+    req.body
+  );
   orderQueueService
     .createOrderQueue(req.body)
-    .then((orderQueue) =>
-      res.json({ _id: orderQueue.id, status: 'successful' })
-    )
+    .then((orderQueue) => res.json({ err: null, status: 'successful' }))
     .catch((err) => res.json({ err: err, status: 'unsuccessful' }));
 });
 
