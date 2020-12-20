@@ -10,5 +10,5 @@ export class OrderInterface {
   }[];
   discount: string; // Promotion id
   note: string;
-  created_at: number;
+  created_at?: number;
 }

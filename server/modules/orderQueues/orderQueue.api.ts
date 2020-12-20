@@ -11,7 +11,7 @@ const authService: AuthService = new AuthService();
 
 router.get('/', async (req, res) => {
   let orderQueues = await orderQueueService.findAllOrderQueue();
-
+  console.log('Get order queue');
   res.json(orderQueues);
 });
 

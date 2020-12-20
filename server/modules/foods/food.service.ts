@@ -1,5 +1,5 @@
-import { FoodModel } from "../../models";
-import { FoodInterface } from "../../interfaces";
+import { FoodModel } from '../../models';
+import { FoodInterface } from '../../interfaces';
 
 export class FoodService {
   async createFood(data: FoodInterface) {
@@ -11,14 +11,14 @@ export class FoodService {
         !data.type ||
         !data.price
       ) {
-        throw new Error("Cannot Create Food. Has Null Field.");
+        throw new Error('Cannot Create Food. Has Null Field.');
       }
       data.created_at = Date.now();
       delete data._id;
       return await FoodModel.add(data);
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Create Food.");
+      throw new Error('Cannot Create Food.');
     }
   }
 
@@ -40,7 +40,7 @@ export class FoodService {
       return food;
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Find Food.");
+      throw new Error('Cannot Find Food.');
     }
   }
 
@@ -66,7 +66,7 @@ export class FoodService {
       return foods;
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Find All Food.");
+      throw new Error('Cannot Find All Food.');
     }
   }
 
@@ -78,7 +78,7 @@ export class FoodService {
       return { _id: id, result: result };
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Update Food.");
+      throw new Error('Cannot Update Food.');
     }
   }
 
@@ -88,7 +88,7 @@ export class FoodService {
       return { _id: id, result: result };
     } catch (e) {
       console.log(e);
-      throw new Error("Cannot Delete Food.");
+      throw new Error('Cannot Delete Food.');
     }
   }
 }

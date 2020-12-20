@@ -45,7 +45,6 @@ export class OrderQueueService {
         discount: doc.data().discount,
         token: doc.data().token,
         note: doc.data().note,
-        created_at: doc.data().created_at,
       };
       return orderQueue;
     } catch (e) {
@@ -88,7 +87,6 @@ export class OrderQueueService {
           discount: doc.data().discount,
           token: doc.data().token,
           note: doc.data().note,
-          created_at: doc.data().created_at,
         };
         orderQueues.push(orderQueue);
       });
@@ -96,6 +94,27 @@ export class OrderQueueService {
     } catch (e) {
       console.log(e);
       throw new Error('Cannot Find All Order Queue.');
+    }
+  }
+  async findAllPopulatedOrderQueue() {
+    try {
+      let orderQueue = await this.findAllOrderQueue();
+      let foodService = new FoodService();
+      let newQueue = await Promise.all(
+        orderQueue.map(async (order) => {
+          for (let i = 0; i < order.list_order_item.length; i++) {
+            let food = await foodService.findFoodById(
+              order.list_order_item[i].food
+            );
+            order.list_order_item[i]['food_name'] = food.name;
+          }
+          return order;
+        })
+      );
+      return newQueue;
+    } catch (e) {
+      console.error(e);
+      throw new Error(`Get order failed! Error: ${e}`);
     }
   }
 

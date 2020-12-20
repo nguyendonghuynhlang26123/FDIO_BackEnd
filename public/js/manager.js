@@ -67,7 +67,7 @@ class ManagerController {
     ).textContent = `Table #${order.table_id}`;
     node.querySelector('[data-order-time]').textContent = `${subtractTime(
       order.time_order
-    )} mins`;
+    )}`;
 
     node
       .querySelector('[data-order]')

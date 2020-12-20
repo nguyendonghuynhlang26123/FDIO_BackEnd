@@ -1,39 +1,60 @@
-import * as express from "express";
-import { AuthService } from "../auth/auth.service";
-import { FoodService } from "./food.service";
+import * as express from 'express';
+import { AuthService } from '../auth/auth.service';
+import { FoodService } from './food.service';
 const router = express.Router();
 
 const foodService: FoodService = new FoodService();
 const authService: AuthService = new AuthService();
 
-router.get("/", authService.restrict, async (req, res) => {
+router.get('/', async (req, res) => {
   const foods = await foodService.findAllFood();
   res.json(foods);
 });
 
-router.get("/:foodId", authService.restrict, async (req, res) => {
-  const food = await foodService.findFoodById(
-    req.params.foodId
-  );
+router.get('/:foodId', async (req, res) => {
+  const food = await foodService.findFoodById(req.params.foodId);
   res.json(food);
 });
 
-router.post("/", authService.restrict, async (req, res) => {
-  const food = await foodService.createFood(req.body);
-  res.json({ _id: food.id });
+router.post('/', async (req, res) => {
+  try {
+    const food = await foodService.createFood(req.body);
+    res.json({ id: food.id, status: 'successful' });
+  } catch (e) {
+    res.json({ id: null, status: 'unsuccessful' });
+  }
 });
 
-router.put("/:foodId", authService.restrict, async (req, res) => {
-  const result = await foodService.updateFood(
-    req.params.foodId,
-    req.body
-  );
-  res.json(result);
+router.put('/:foodId', async (req, res) => {
+  try {
+    const result = await foodService.updateFood(req.params.foodId, req.body);
+    res.json({ status: 'successful', id: result._id });
+  } catch (error) {
+    res.json({ status: 'unsuccessful', err: error });
+  }
 });
 
-router.delete("/:foodId", authService.restrict, async (req, res) => {
-  const result = await foodService.deleteFood(req.params.foodId);
-  res.json(result);
+router.delete('/:foodId', async (req, res) => {
+  try {
+    const result = await foodService.deleteFood(req.params.foodId);
+    res.json({ id: result._id, status: 'successful' });
+  } catch (error) {
+    res.json({ err: error, status: 'unsuccessful' });
+  }
+});
+
+router.delete('/', async (req, res) => {
+  try {
+    console.log(req.query.ids);
+    if (req.query.ids && req.query.ids.length > 0) {
+      for (const id of req.query.ids) {
+        await foodService.deleteFood(id);
+      }
+      res.json({ status: 'successful' });
+    }
+  } catch (error) {
+    res.json({ status: 'unsuccessful' });
+  }
 });
 
 module.exports = router;
