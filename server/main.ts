@@ -28,6 +28,10 @@ async function initServer() {
   app.use(express.static(__dirname + '/../public'));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));
+  app.use((req, res, next) => {
+    req.io = io;
+    next();
+  });
 
   app.use('/user', userApi);
   app.use('/promotion', promotionApi);
@@ -64,7 +68,6 @@ async function initServer() {
 
   //Socket
   let io = require('socket.io')(server);
-  app.set('socket', io);
 
   kitchenSocket(io);
   managerSocket(io);

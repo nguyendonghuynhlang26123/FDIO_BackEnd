@@ -5,7 +5,6 @@ import { OrderQueueService } from './orderQueue.service';
 const router = express.Router();
 
 const orderQueueService: OrderQueueService = new OrderQueueService();
-const foodService: FoodService = new FoodService();
 const authService: AuthService = new AuthService();
 
 //TODO: AUTH RESTRICT
@@ -23,13 +22,20 @@ router.get('/:orderQueueId', async (req, res) => {
   res.json(orderQueue);
 });
 
-router.post('/', authService.restrict, async (req, res) => {
+router.post('/', async (req, res) => {
   orderQueueService
     .createOrderQueue(req.body)
-    .then((orderQueue) =>
-      res.json({ _id: orderQueue.id, status: 'successful' })
-    )
-    .catch((err) => res.json({ err: err, status: 'unsuccessful' }));
+    .then(async (order) => {
+      let generatedOrder = await orderQueueService.getPopulatedOrderQueueById(
+        order.id
+      );
+      req.io.of('/manager').emit('addOrder', generatedOrder);
+      return res.json({ _id: order.id, status: 'successful' });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.json({ err: err, status: 'unsuccessful' });
+    });
 });
 
 router.put('/deny', async (req, res) => {

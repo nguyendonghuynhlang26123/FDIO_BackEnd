@@ -1,3 +1,4 @@
+import { FoodService } from './../foods/food.service';
 import { OrderQueueModel } from '../../models';
 import { OrderQueueInterface } from '../../interfaces';
 import { OrderService } from '../orders/order.service';
@@ -18,9 +19,10 @@ export class OrderQueueService {
       data.created_at = Date.now();
       data.time_order = Date.now();
       data.list_order_item.forEach((e) => {
-        e.status = 'processing';
+        e.status = 'waiting';
       });
       delete data._id;
+
       return await OrderQueueModel.add(data);
     } catch (e) {
       console.log(e);
@@ -49,6 +51,23 @@ export class OrderQueueService {
     } catch (e) {
       console.log(e);
       throw new Error('Cannot Find Order Queue.');
+    }
+  }
+
+  async getPopulatedOrderQueueById(id) {
+    try {
+      let order = await this.findOrderQueueById(id);
+      let foodService = new FoodService();
+      for (let i = 0; i < order.list_order_item.length; i++) {
+        let food = await foodService.findFoodById(
+          order.list_order_item[i].food
+        );
+        order.list_order_item[i]['food_name'] = food.name;
+      }
+      return order;
+    } catch (e) {
+      console.error(e);
+      throw new Error(`Get order ${id} failed! Error: ${e}`);
     }
   }
 

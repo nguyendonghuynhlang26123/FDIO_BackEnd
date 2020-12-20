@@ -13,6 +13,9 @@ class ManagerController {
     //BTN Events
     this.setAcceptAllHandler();
     this.setRemoveCompletedHandler();
+
+    //Interval
+    this.trackingTimeHandler();
   }
 
   //Public Fns
@@ -320,6 +323,27 @@ class ManagerController {
         this.setActiveOrder(this.currentActiveId);
       });
   };
+
+  trackingTimeHandler = () => {
+    let trackTime = () => {
+      this.currentOrderList.forEach((order) => {
+        console.log(order);
+        let time = subtractTime(order.time_order);
+        document
+          .getElementById(order._id)
+          .querySelector('[data-order-time]').textContent = time;
+
+        if (isTooLong(order.time_order))
+          document.getElementById(order._id).classList.add('prioritized');
+      });
+    };
+
+    trackTime();
+    setInterval(() => {
+      trackTime();
+      console.log('re track');
+    }, 60000);
+  };
 }
 
 // ---------------- FUNCTIONS -----------------------
@@ -345,7 +369,7 @@ const debugMode = (data) => {
 };
 
 socket.on('init', (data) => {
-  debugMode(data);
+  //debugMode(data);
   console.log(data);
   mc = new ManagerController(data, socket);
 });
