@@ -29,9 +29,7 @@ export const kitchenSocket = (socket) => {
   socket.of('/kitchen').on('connection', async (socket) => {
     console.log('kitchen connected');
 
-    console.log('getQueue');
     let result = await getQueue();
-    console.log(result);
     socket.emit('init', result);
   });
 };

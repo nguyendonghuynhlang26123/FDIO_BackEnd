@@ -5,8 +5,8 @@ import { OrderInterface } from '../../interfaces/order.interface';
 import { FoodService } from './../foods/food.service';
 import { OrderQueueService } from './../orderQueues/orderQueue.service';
 
+const service = new OrderQueueService();
 const getData = async () => {
-  const service = new OrderQueueService();
   const orderQueues = await service.findAllOrderQueue();
   const foodService = new FoodService();
 
@@ -27,8 +27,12 @@ const getData = async () => {
   return newQueue;
 };
 
-const checkCompleted = (data, orderQueue): boolean => {
-  let order = orderQueue.find((o) => o._id === data.order_id);
+const checkCompleted = async (data): Promise<Boolean> => {
+  const orderQueues = await service.findAllOrderQueue();
+  let order = orderQueues.find((o) => {
+    return o._id.toString() === data.order_id.toString();
+  });
+  if (!order) return false;
   //If all order is processed
   let unprocessed = order.list_order_item.find(
     (f) => f.status === 'waiting' || f.status === 'processing'
@@ -36,8 +40,7 @@ const checkCompleted = (data, orderQueue): boolean => {
   return unprocessed == undefined;
 };
 
-const createOrder = async (data: any, orderQueue: any) => {
-  const service = new OrderQueueService();
+const createOrder = async (data: any) => {
   let order = await service.findOrderQueueById(data.order_id);
 
   const orderService = new OrderService();
@@ -68,14 +71,24 @@ export const managerSocket = (io) => {
       let body = `${data.food_name} x ${data.quantity} are done and our waiter will serve you in no time! Have a good meal!`;
       sendFcmNotification(data.token, title, body);
 
-      if (checkCompleted(data, orderQueue)) {
-        await createOrder(data, orderQueue);
+      let isFinished = await checkCompleted(data);
+      console.log(isFinished);
+      if (isFinished) {
+        try {
+          console.log('COMPLETED ORDER - ', data.order_id);
+          await createOrder(data);
+          console.log('Store order completed');
+          await new OrderQueueService().deleteOrderQueue(data.order_id);
+          console.log('Delete order queue completed');
 
-        sendFcmNotification(
-          data.token,
-          'Thank you',
-          'Your order is completed! Thank you for your visit at FDIO restaurant!'
-        );
+          sendFcmNotification(
+            data.token,
+            'Thank you',
+            'Your order is completed! Thank you for your visit at FDIO restaurant!'
+          );
+        } catch (err) {
+          console.error(err);
+        }
       }
     });
 
@@ -83,8 +96,9 @@ export const managerSocket = (io) => {
     socket.on('deny', async (data) => {
       await io.of('/kitchen').emit('removeOrder', data.order_id + data.food_id);
 
-      if (checkCompleted(data, orderQueue)) {
-        await createOrder(data, orderQueue);
+      if (checkCompleted(data)) {
+        await createOrder(data);
+        await new OrderQueueService().deleteOrderQueue(data.order_id);
 
         sendFcmNotification(
           data.token,

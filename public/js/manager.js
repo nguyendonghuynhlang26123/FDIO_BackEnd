@@ -139,23 +139,23 @@ class ManagerController {
     })
       .then((res) => {
         console.log(res);
+
+        //SEND SOCKET
+        if (status !== WAITING) {
+          this.socket.emit(status, {
+            order_id: this.currentActiveId,
+            food_id: id,
+            food_name: food.food_name,
+            quantity: food.quantity,
+            table_id: targetOrder.table_id,
+            note: targetOrder.note,
+            token: targetOrder.token,
+          });
+        }
       })
       .catch((err) => {
         alert(`Set status error! Error: ${err}`);
       });
-
-    //SEND SOCKET
-    if (status !== WAITING) {
-      this.socket.emit(status, {
-        order_id: this.currentActiveId,
-        food_id: id,
-        food_name: food.food_name,
-        quantity: food.quantity,
-        table_id: targetOrder.table_id,
-        note: targetOrder.note,
-        token: targetOrder.token,
-      });
-    }
 
     //UPDATE UI
     document.getElementById(id).querySelector('[data-holder]').classList = '';
