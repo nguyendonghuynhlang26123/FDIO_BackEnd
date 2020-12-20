@@ -52,7 +52,7 @@ router.put('/:orderQueueId', authService.restrict, async (req, res) => {
 });
 
 router.put('/update-status/:orderQueueId', async (req, res) => {
-  console.log('PUT RECEIEVED', req.body);
+  console.log('PUT RECEIVED', req.body);
 
   const result = await orderQueueService.updateStatusFoodOrderQueue(
     req.params.orderQueueId,
