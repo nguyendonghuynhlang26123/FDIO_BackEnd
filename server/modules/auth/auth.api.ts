@@ -13,26 +13,22 @@ router.get('/login', (req, res) => {
 });
 
 router.post('/login', (req, res) => {
+  console.log(req.session);
   authService.authenticate(
     req.body.username,
     req.body.password,
     (err, user) => {
-      if (err) {
-        console.log(
-          'log ~ file: auth.api.ts ~ line 21 ~ router.post ~ err',
-          err
-        );
-      }
-
       if (user) {
         req.session.regenerate(() => {
           req.session.auth = true;
           req.session.userId = user._id;
-          res.redirect('/manager');
+          if (req.body.role === 'manager') res.redirect('/manager');
+          else res.json({ status: 'successful' });
         });
       } else {
         req.session.error = `${err}. Authentication failed, please check your username and password.`;
-        res.redirect('/login');
+        if (req.body.role === 'manager') res.redirect('/login');
+        else res.json({ status: 'unsuccessful' });
       }
     }
   );

@@ -1,6 +1,8 @@
 export class FoodListInterface {
   _id?: string;
-  list: string[]; // array Food id
+  name: string;
+  listId: string[]; // array Food id
   thumbnail: string;
   created_at: number;
+  ui_type: number;
 }

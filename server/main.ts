@@ -62,6 +62,14 @@ async function initServer() {
     res.render('pages/kitchenPage', {});
   });
 
+  app.get('*', (req, res, next) => {
+    next();
+  });
+
+  app.use((req, res, next) => {
+    res.json({ status: 'unsuccessful', code: 404, err: 'Not found' });
+  });
+
   let server = app.listen(port, () => {
     console.log(`Server is listening at http://localhost:${port}`);
   });

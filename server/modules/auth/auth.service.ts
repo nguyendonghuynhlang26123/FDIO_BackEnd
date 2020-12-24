@@ -5,14 +5,6 @@ export class AuthService {
   constructor(private userService: UserService = new UserService()) {}
 
   async authenticate(username, password, fn) {
-    console.log(
-      'log ~ file: auth.service.ts ~ line 8 ~ AuthService ~ authenticate ~ username',
-      username
-    );
-    console.log(
-      'log ~ file: auth.service.ts ~ line 8 ~ AuthService ~ authenticate ~ password',
-      password
-    );
     try {
       const user = await this.userService.findUserByUsername(username);
       if (!user) return fn(new Error('Cannot find user'));
