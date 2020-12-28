@@ -22,7 +22,7 @@ router.post('/login', (req, res) => {
         req.session.regenerate(() => {
           req.session.auth = true;
           req.session.userId = user._id;
-          if (req.body.role === 'manager') res.redirect('/manager');
+          if (user.role === 'manager') res.redirect('/manager');
           else res.json({ status: 'successful' });
         });
       } else {
