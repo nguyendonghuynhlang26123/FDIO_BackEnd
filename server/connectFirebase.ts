@@ -10,9 +10,19 @@ admin.initializeApp({
 
 export const db = admin.firestore();
 
-export const sendFcmNotification = (token, title, body) => {
+export const sendFcmNotification = (
+  token,
+  title,
+  body,
+  orderId = '',
+  foodId = '',
+  status = ''
+) => {
   let message = {
-    notification: {
+    data: {
+      orderId: orderId,
+      foodId: foodId,
+      status: status,
       title: title,
       body: body,
     },

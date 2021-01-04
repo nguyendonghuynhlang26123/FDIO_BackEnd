@@ -1,9 +1,8 @@
 class ManagerController {
   constructor(data, socket) {
-    console.log(data);
     this.socket = socket;
-    this.currentActiveId = data[0]._id;
     this.currentOrderList = data;
+    if (data.length !== 0) this.currentActiveId = data[0]._id;
 
     this.renderTemplates();
     document
@@ -18,17 +17,20 @@ class ManagerController {
     this.trackingTimeHandler();
   }
 
+  isEmpty = () => {
+    return this.currentOrderList.length === 0;
+  };
+
   //Public Fns
   addNewOrder = (newOrder) => {
     this.currentOrderList.push(newOrder);
+
     if (this.currentOrderList.length === 1) {
+      //Only the first item
       this.currentActiveId = newOrder._id;
-      this.setActiveOrder(this.currentActiveId);
     }
 
-    document
-      .querySelector('[data-order-list]')
-      .appendChild(this.createOrderElement(newOrder));
+    this.renderTemplates();
   };
 
   // TEMPLATE GENERATORS:
@@ -80,10 +82,9 @@ class ManagerController {
     let order = this.currentOrderList.find(
       (o) => o._id.toString() === this.currentActiveId.toString()
     );
+    let parent = document.querySelector('[data-tasks]');
+    parent.innerHTML = '';
     if (order) {
-      let parent = document.querySelector('[data-tasks]');
-      parent.innerHTML = '';
-
       order.list_order_item.forEach((food) => {
         parent.appendChild(this.createTask(food));
       });
@@ -113,10 +114,11 @@ class ManagerController {
     });
 
     //render task
-    this.setActiveOrder(this.currentActiveId);
+    if (this.currentActiveId) this.setActiveOrder(this.currentActiveId);
   };
 
-  setStatus = (status, id) => {
+  setStatus = (status, id, denyNote = '') => {
+    //Set status by call http request to update server & call socket to trigger FCM
     let food = null;
     let targetOrder = null;
     //UPDATE CURRENT LIST
@@ -138,8 +140,6 @@ class ManagerController {
       status: status,
     })
       .then((res) => {
-        console.log(res);
-
         //SEND SOCKET
         if (status !== WAITING) {
           this.socket.emit(status, {
@@ -148,7 +148,7 @@ class ManagerController {
             food_name: food.food_name,
             quantity: food.quantity,
             table_id: targetOrder.table_id,
-            note: targetOrder.note,
+            note: denyNote,
             token: targetOrder.token,
           });
         }
@@ -166,6 +166,19 @@ class ManagerController {
   };
 
   //HELPERS
+  orderHasWaiting = (orderId) => {
+    let order = this.currentOrderList.find(
+      (o) => o._id.toString() === orderId.toString()
+    );
+    if (!order) return false;
+
+    for (let index = 0; index < order.list_order_item.length; index++) {
+      if (order.list_order_item[index].status === WAITING) return true;
+    }
+
+    return false;
+  };
+
   orderIsProcessing = (orderId) => {
     let order = this.currentOrderList.find(
       (o) => o._id.toString() === orderId.toString()
@@ -186,7 +199,11 @@ class ManagerController {
     if (!order) return false;
 
     for (let index = 0; index < order.list_order_item.length; index++) {
-      if (order.list_order_item[index].status !== DONE) return false;
+      if (
+        order.list_order_item[index].status !== DONE &&
+        order.list_order_item[index].status !== DENY
+      )
+        return false;
     }
 
     return true;
@@ -210,10 +227,7 @@ class ManagerController {
 
   // ---------------- EVENT HANDLER ---------------------
   acceptAllBtnToggle = () => {
-    if (
-      this.orderIsProcessing(this.currentActiveId) ||
-      this.orderIsCompleted(this.currentActiveId)
-    )
+    if (!this.orderHasWaiting(this.currentActiveId))
       document.querySelector('[data-accept-all-order]').classList.add(DISABLE);
     else
       document
@@ -274,17 +288,11 @@ class ManagerController {
     ev.preventDefault();
     let parent = ev.target.parentElement;
     let id = parent.querySelector('[data-deny-food-id]').value;
+    let note = parent.querySelector('[data-deny-note]').value;
 
+    this.setStatus(DENY, id, note);
     this.toggleModal();
-    this.setStatus(DENY, id);
-
-    sendHTTPRequest('PUT', '/order-queue/deny', {
-      table_id: parent.querySelector('[data-deny-table-id]').value,
-      food_id: parent.querySelector('[data-deny-food-id]').value,
-      note: parent.querySelector('[data-deny-note]').value,
-    }).then((response) => {
-      console.log(response);
-    });
+    console.log('TOGGLE');
   };
 
   //BUTTON EVENTS
@@ -302,7 +310,9 @@ class ManagerController {
         );
 
         for (const food of order.list_order_item) {
-          this.setStatus(PROCESSING, food.food);
+          if (food.status === WAITING) {
+            this.setStatus(PROCESSING, food.food);
+          }
         }
       });
   };
@@ -319,8 +329,10 @@ class ManagerController {
           return true;
         });
 
-        this.currentActiveId = this.currentOrderList[0]._id;
-        this.setActiveOrder(this.currentActiveId);
+        if (this.currentOrderList.length !== 0) {
+          this.currentActiveId = this.currentOrderList[0]._id;
+          this.setActiveOrder(this.currentActiveId);
+        }
       });
   };
 
@@ -341,7 +353,6 @@ class ManagerController {
     trackTime();
     setInterval(() => {
       trackTime();
-      console.log('re track');
     }, 60000);
   };
 }

@@ -28,15 +28,19 @@ const getData = async () => {
 };
 
 const checkCompleted = async (data): Promise<Boolean> => {
-  const orderQueues = await service.findAllOrderQueue();
-  let order = orderQueues.find((o) => {
-    return o._id.toString() === data.order_id.toString();
-  });
+  const order = await service.findOrderQueueById(data.order_id.toString());
+
   if (!order) return false;
+  console.log(order.list_order_item);
   //If all order is processed
   let unprocessed = order.list_order_item.find(
     (f) => f.status === 'waiting' || f.status === 'processing'
   );
+  console.log(
+    'log ~ file: manager.socket.ts ~ line 39 ~ checkCompleted ~ unprocessed',
+    unprocessed
+  );
+
   return unprocessed == undefined;
 };
 
@@ -60,7 +64,14 @@ export const managerSocket = (io) => {
       //console.log(data);
       let title = `Food status - FDIO APP`;
       let body = `${data.food_name} x ${data.quantity} are in processed`;
-      sendFcmNotification(data.token, title, body);
+      sendFcmNotification(
+        data.token,
+        title,
+        body,
+        data.order_id,
+        data.food_id,
+        'PROCESSING'
+      );
     });
 
     //COMPLETED ORDER
@@ -69,10 +80,16 @@ export const managerSocket = (io) => {
 
       let title = `Food status - FDIO APP`;
       let body = `${data.food_name} x ${data.quantity} are done and our waiter will serve you in no time! Have a good meal!`;
-      sendFcmNotification(data.token, title, body);
+      sendFcmNotification(
+        data.token,
+        title,
+        body,
+        data.order_id,
+        data.food_id,
+        'DONE'
+      );
 
       let isFinished = await checkCompleted(data);
-      console.log(isFinished);
       if (isFinished) {
         try {
           console.log('COMPLETED ORDER - ', data.order_id);
@@ -81,11 +98,13 @@ export const managerSocket = (io) => {
           await new OrderQueueService().deleteOrderQueue(data.order_id);
           console.log('Delete order queue completed');
 
-          sendFcmNotification(
-            data.token,
-            'Thank you',
-            'Your order is completed! Thank you for your visit at FDIO restaurant!'
-          );
+          setTimeout(() => {
+            sendFcmNotification(
+              data.token,
+              'Thank you',
+              'Your order is completed! Thank you for your visit at FDIO restaurant!'
+            );
+          }, 5000);
         } catch (err) {
           console.error(err);
         }
@@ -96,20 +115,30 @@ export const managerSocket = (io) => {
     socket.on('deny', async (data) => {
       await io.of('/kitchen').emit('removeOrder', data.order_id + data.food_id);
 
-      if (checkCompleted(data)) {
+      let isFinished = await checkCompleted(data);
+      if (isFinished) {
         await createOrder(data);
         await new OrderQueueService().deleteOrderQueue(data.order_id);
 
-        sendFcmNotification(
-          data.token,
-          'Thank you',
-          'Your order is completed! Thank you for your visit at FDIO restaurant!'
-        );
+        setTimeout(() => {
+          sendFcmNotification(
+            data.token,
+            'Thank you',
+            'Your order is completed! Thank you for your visit at FDIO restaurant!'
+          );
+        }, 5000);
       }
 
       let title = `Food status - FDIO APP`;
       let body = `${data.food_name} x ${data.quantity} are denied!\n ${data.note}\n We sorry for this inconvenience `;
-      sendFcmNotification(data.token, title, body);
+      sendFcmNotification(
+        data.token,
+        title,
+        body,
+        data.order_id,
+        data.food_id,
+        'DENIED'
+      );
     });
   });
 };
