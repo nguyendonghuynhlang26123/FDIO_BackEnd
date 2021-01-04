@@ -48,6 +48,11 @@ router.put('/:foodId', async (req, res) => {
 
 router.delete('/:foodId', async (req, res) => {
   try {
+    const foodListService = new FoodListService();
+    await foodListService.removeAFoodFromFoodList(
+      req.query.foodListId,
+      req.params.foodId
+    );
     const result = await foodService.deleteFood(req.params.foodId);
 
     res.json({ _id: result._id, status: 'successful' });
