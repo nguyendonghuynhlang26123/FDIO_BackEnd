@@ -1,3 +1,4 @@
+import { FoodListService } from './../foodLists/foodList.service';
 import * as express from 'express';
 import { AuthService } from '../auth/auth.service';
 import { FoodService } from './food.service';
@@ -19,6 +20,17 @@ router.get('/:foodId', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const food = await foodService.createFood(req.body);
+    res.json({ _id: food.id, status: 'successful' });
+  } catch (e) {
+    res.json({ _id: null, status: 'unsuccessful' });
+  }
+});
+
+router.post('/append/:foodListId', async (req, res) => {
+  try {
+    const food = await foodService.createFood(req.body);
+    const foodListService = new FoodListService();
+    await foodListService.appendAFoodToFoodList(req.params.foodListId, food.id);
     res.json({ _id: food.id, status: 'successful' });
   } catch (e) {
     res.json({ _id: null, status: 'unsuccessful' });

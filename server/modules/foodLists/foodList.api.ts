@@ -46,18 +46,6 @@ router.put('/:foodListId', async (req, res) => {
   }
 });
 
-router.put('/append/:foodListId', async (req, res) => {
-  try {
-    const result = await foodListService.appendAFoodToFoodList(
-      req.params.foodListId,
-      req.body
-    );
-    res.json({ _id: result._id, status: 'successful' });
-  } catch (error) {
-    res.json({ err: error, status: 'unsuccessful' });
-  }
-});
-
 router.delete('/:foodListId', async (req, res) => {
   try {
     const result = await foodListService.deleteFoodList(req.params.foodListId);

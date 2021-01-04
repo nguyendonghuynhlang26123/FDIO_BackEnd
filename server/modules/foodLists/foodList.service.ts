@@ -102,10 +102,10 @@ export class FoodListService {
     }
   }
 
-  async appendAFoodToFoodList(id: string, newFoodItem: FoodInterface) {
+  async appendAFoodToFoodList(id: string, newFoodId: string) {
     try {
       const foodList = await this.findFoodListById(id);
-      foodList.listId.push(newFoodItem._id);
+      foodList.listId.push(newFoodId);
       const result = await FoodListModel.doc(id).update(foodList);
       return { _id: id, result: result };
     } catch (e) {
