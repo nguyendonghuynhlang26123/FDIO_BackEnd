@@ -23,6 +23,7 @@ router.get('/:orderQueueId', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
+  console.log(req.body)
   orderQueueService
     .createOrderQueue(req.body)
     .then(async (order) => {
@@ -34,7 +35,7 @@ router.post('/', async (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      return res.json({ err: err, status: 'unsuccessful' });
+      return res.json({ err: err.getMessage(), status: 'unsuccessful' });
     });
 });
 

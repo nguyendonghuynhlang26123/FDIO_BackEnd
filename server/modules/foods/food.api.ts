@@ -19,16 +19,16 @@ router.get('/:foodId', async (req, res) => {
 router.post('/', async (req, res) => {
   try {
     const food = await foodService.createFood(req.body);
-    res.json({ id: food.id, status: 'successful' });
+    res.json({ _id: food.id, status: 'successful' });
   } catch (e) {
-    res.json({ id: null, status: 'unsuccessful' });
+    res.json({ _id: null, status: 'unsuccessful' });
   }
 });
 
 router.put('/:foodId', async (req, res) => {
   try {
     const result = await foodService.updateFood(req.params.foodId, req.body);
-    res.json({ status: 'successful', id: result._id });
+    res.json({ status: 'successful', _id: result._id });
   } catch (error) {
     res.json({ status: 'unsuccessful', err: error });
   }
@@ -37,7 +37,8 @@ router.put('/:foodId', async (req, res) => {
 router.delete('/:foodId', async (req, res) => {
   try {
     const result = await foodService.deleteFood(req.params.foodId);
-    res.json({ id: result._id, status: 'successful' });
+
+    res.json({ _id: result._id, status: 'successful' });
   } catch (error) {
     res.json({ err: error, status: 'unsuccessful' });
   }
