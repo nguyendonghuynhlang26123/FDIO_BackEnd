@@ -35,12 +35,20 @@ router.post('/', async (req, res) => {
 });
 
 router.put('/:foodListId', async (req, res) => {
-  console.log(
-    'log ~ file: foodList.api.ts ~ line 38 ~ router.put ~ req',
-    req.body
-  );
   try {
     const result = await foodListService.updateFoodList(
+      req.params.foodListId,
+      req.body
+    );
+    res.json({ _id: result._id, status: 'successful' });
+  } catch (error) {
+    res.json({ err: error, status: 'unsuccessful' });
+  }
+});
+
+router.put('/append/:foodListId', async (req, res) => {
+  try {
+    const result = await foodListService.appendAFoodToFoodList(
       req.params.foodListId,
       req.body
     );
