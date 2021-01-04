@@ -114,6 +114,18 @@ export class FoodListService {
     }
   }
 
+  async removeAFoodFromFoodList(id: string, foodId: string) {
+    try {
+      const foodList = await this.findFoodListById(id);
+      foodList.listId = foodList.listId.filter((id) => id != foodId);
+      const result = await FoodListModel.doc(id).update(foodList);
+      return { _id: id, result: result };
+    } catch (e) {
+      console.log(e);
+      throw new Error('Cannot Update Food List.');
+    }
+  }
+
   async updateFoodList(id: string, dataUpdate: FoodListInterface) {
     try {
       delete dataUpdate._id;
