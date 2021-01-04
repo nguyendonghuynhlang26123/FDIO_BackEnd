@@ -332,6 +332,8 @@ class ManagerController {
         if (this.currentOrderList.length !== 0) {
           this.currentActiveId = this.currentOrderList[0]._id;
           this.setActiveOrder(this.currentActiveId);
+        } else {
+          document.querySelector('[data-tasks]').innerHTML = '';
         }
       });
   };
