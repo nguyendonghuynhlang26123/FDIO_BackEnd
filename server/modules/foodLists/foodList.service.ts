@@ -1,3 +1,4 @@
+import { FoodInterface } from './../../interfaces/food.interface';
 import { FoodService } from './../foods/food.service';
 import { FoodListModel } from '../../models';
 import { FoodListInterface } from '../../interfaces';
@@ -101,10 +102,10 @@ export class FoodListService {
     }
   }
 
-  async appendAFoodToFoodList(id: string, newFoodItemId: string) {
+  async appendAFoodToFoodList(id: string, newFoodItem: FoodInterface) {
     try {
       const foodList = await this.findFoodListById(id);
-      foodList.listId.push(newFoodItemId);
+      foodList.listId.push(newFoodItem._id);
       const result = await FoodListModel.doc(id).update(foodList);
       return { _id: id, result: result };
     } catch (e) {
