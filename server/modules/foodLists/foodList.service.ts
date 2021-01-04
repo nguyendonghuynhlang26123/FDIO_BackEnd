@@ -140,6 +140,12 @@ export class FoodListService {
 
   async deleteFoodList(id: string) {
     try {
+      const targetedList = await this.findFoodListById(id);
+      const foodService = new FoodService();
+
+      for (let foodId in targetedList.listId)
+        await foodService.deleteFood(foodId);
+
       const result = await FoodListModel.doc(id).delete();
       return { _id: id, result: result };
     } catch (e) {
