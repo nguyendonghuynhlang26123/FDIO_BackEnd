@@ -1,7 +1,15 @@
 import { OrderModel } from "../../models";
-import { OrderInterface } from "../../interfaces";
+import {
+  FoodInterface,
+  OrderInterface,
+  StatisticInterface,
+  StatisticDetailInterface,
+} from "../../interfaces";
+import { FoodService } from "../foods/food.service";
 
 export class OrderService {
+  constructor(private foodService: FoodService = new FoodService()) {}
+
   async createOrder(data: OrderInterface) {
     try {
       if (!data.table_id || !data.manager || !data.list_order_item) {
@@ -63,6 +71,51 @@ export class OrderService {
     } catch (e) {
       console.log(e);
       throw new Error("Cannot Find All Order.");
+    }
+  }
+
+  async orderStatistics(): Promise<StatisticInterface> {
+    try {
+      let order = await this.findAllOrder();
+      const statistic: StatisticInterface = {
+        details: [],
+        total_orders: 0,
+        total_money: 0,
+      };
+      for (let i = 0; i < order.length; i++) {
+        for (let j = 0; j < order[i].list_order_item.length; j++) {
+          if (order[i].list_order_item[j].status != "completed") continue;
+          const food: FoodInterface = await this.foodService.findFoodById(
+            order[i].list_order_item[j].food
+          );
+          let flag = true;
+          for (let k = 0; k < statistic.details.length; k++) {
+            if (statistic.details[k].food_name == food.name) {
+              flag = false;
+              statistic.details[k].quantity_sold +=
+                order[i].list_order_item[j].quantity;
+              statistic.details[k].money +=
+                food.price * order[i].list_order_item[j].quantity;
+              break;
+            }
+          }
+          if (flag) {
+            const detail: StatisticDetailInterface = {
+              food_name: food.name,
+              quantity_sold: order[i].list_order_item[j].quantity,
+              money: food.price * order[i].list_order_item[j].quantity,
+            };
+            statistic.details.push(detail);
+          }
+          statistic.total_orders += 1;
+          statistic.total_money +=
+            food.price * order[i].list_order_item[j].quantity;
+        }
+      }
+      return statistic;
+    } catch (e) {
+      console.log(e);
+      throw new Error("Cannot Order Statistics.");
     }
   }
 
