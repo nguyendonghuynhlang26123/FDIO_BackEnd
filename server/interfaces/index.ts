@@ -4,3 +4,4 @@ export * from './orderQueue.interface';
 export * from './promotion.interface';
 export * from './food.interface';
 export * from './foodList.interface';
+export * from './statistic.interface';
