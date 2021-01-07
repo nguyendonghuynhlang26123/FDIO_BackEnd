@@ -311,9 +311,6 @@ h1 {
   position: relative;
   padding: 5px;
 }
-.action-btns-containers {
-  width: 10rem;
-}
 .btns-container div {
   cursor: pointer;
   transition: 150ms ease-in;
