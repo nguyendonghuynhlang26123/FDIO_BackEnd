@@ -220,11 +220,10 @@ h1 {
 }
 
 .tasks > div {
-  display: flex;
-  flex-direction: row;
+  display: grid;
+  grid-template-columns: 6fr 4fr;
   justify-content: space-between;
   align-items: center;
-
   margin-bottom: 1.25rem;
 }
 
